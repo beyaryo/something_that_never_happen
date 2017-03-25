@@ -47,8 +47,8 @@ io.on('connection', function (socket) {
 setInterval(function(){
     request(url);
     console.log("Requesting self again in 20 minutes");
-},10000);
-// 1200000
+}, 1200000);
+
 /**
  * Handle all transaction in socket
  */
