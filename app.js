@@ -1,73 +1,21 @@
-// Express and Morgan init
 var express = require('express');
-var logger = require('morgan');
-var server = express();
-var PORT = 8203;
+var app = express();
 
-// Mongo init
-// var mongoClient = require('mongodb').MongoClient;
-// var mongoPORT = 26124;
-// var MONGODB_URL = "mongodb://myfis.herokuapp.com:" +mongoPORT+ "/sampledb";
+app.set('port', (process.env.PORT || 5000));
 
-// Object init
-var peopleSchema = require('./people.js');
+app.use(express.static(__dirname + '/public'));
 
-server.use(logger('dev'));
+// views is directory for all template files
+// app.set('views', __dirname + '/views');
+// app.set('view engine', 'ejs');
 
-server.use(express.static(__dirname+'/public'));
-
-server.listen(PORT, function(){
-    console.log('Server running on port ' +PORT+ '!');
+app.get('/', function(req, res) {
+    res.send("Init apps");
+    // response.render('pages/index');
 });
 
-server.get("/wew", function(req, res){
-    res.json({
-        message : 'Hello Node!'
-    });
-
-    res.end();
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
 });
 
-server.get("/persons", function(req, res){
-    res.json({
-        message : "Persona"
-    });
 
-    res.end();
-});
-
-var people = new peopleSchema({
-    name : 'Persona',
-    email : 'pes@pens.ac.id',
-    age : 18
-});
-
-// mongoClient.connect(MONGODB_URL, function(err, db){
-//     if(err){
-//         console.log(err);
-//         return;
-//     }else{
-//         console.log("DB connected on port " +mongoPORT+ "!");
-//         // updateDb(db, "Rizal", 30);
-//     }
-// });
-
-// function insertDb(){
-//     db.collection('persons').insertOne(people, function(err, res){
-//         err ? console.log(err) : console.log(res);
-
-//         db.close;
-//     });
-// }
-
-// function updateDb(db, name, age){
-//     db.collection('persons').updateOne(
-//         {name : name},
-//         {$set : {age : age}},
-//         function(err, res){
-//             err ? console.log(err) : console.log(res);
-
-//             db.close;
-//         }
-//     );
-// }
