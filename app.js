@@ -6,7 +6,6 @@
  */
 var express = require('express');
 var logger = require('morgan');
-var parser = require('body-parser');
 var request = require('request');
 var app = express();
 var url = "https://myfis.herokuapp.com/";
@@ -14,64 +13,31 @@ var url = "https://myfis.herokuapp.com/";
 app.set('port', (process.env.PORT || 46195));       // set port to run into
 app.use(express.static(__dirname + '/public'));     // app root dir
 app.use(logger('dev'));                             // unit testing
-app.use(parser.json());                          // support json encoded body
-app.use(parser.urlencoded({extended : true}));   // support encoded body
 
 /**
- * Run app
+ * Run socket
  */
-app.listen(app.get('port'), function() {
+var io = socketIO.listen(app.listen(app.get('port'), function(){
     console.log('Node app is running on port', app.get('port'));
-});
+}));
 
 /**
- * User do GET request
+ * User connect
  */
-app.get("/api/user", function(req, res){
-    var token = req.query.token;
-    var name = req.query.name;
+io.on('connection', function (socket) {
+    console.log('New user connected');
 
-    if(req.query.name == null){
-        res.status(404);
-        res.send("Page not found!");
-    }else{
-        res.status(200)
-        res.send(name);
-    }
-});
+    /**
+     * Broadcast to self
+     */
+    socket.emit('login', 'Welcome to chat room');
 
-/**
- * User do POST request
- */
-app.post("/api/user", function(req, res){
-    var token = req.body.token;
-    var name = req.body.name;
+    /**
+     * Broadcast to everyone but self
+     */
+    socket.broadcast.emit('login', 'Someone connected');
 
-    res.json({
-        token : token,
-        name : name,
-        message : "Hi POST!"
-    });
-});
-
-/**
- * Middleware for spesific name
- */
-app.param('name', function(req, res, next, name){
-    if(name == "bey"){
-        req.message = "Hi bey, how's your doing?";
-    }else{
-        req.message = "Who are you?";
-    }
-
-    next();
-});
-
-/**
- * User do GET request for spesific name
- */
-app.get("/api/user/:name", function(req, res){
-    res.send(req.message);
+    handleSocket(socket);
 });
 
 /**
@@ -80,4 +46,26 @@ app.get("/api/user/:name", function(req, res){
 setInterval(function(){
     request(url);
     console.log("Requesting self again in 20 minutes");
-},1200000);
+},10000);
+// 1200000
+/**
+ * Handle all transaction in socket
+ */
+function handleSocket(socket){
+    socket.on('disconnect', function(){
+        console.log("User disconnected");
+
+        /**
+         * Broadcast to everyone
+         */
+        io.emit('logout', "Someone disconnected");
+    });
+
+    socket.on('message', function(msg){
+        
+        /**
+         * Broadcast to everyone
+         */
+        io.emit('message', msg);
+    });
+}
