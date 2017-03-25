@@ -5,9 +5,9 @@ var server = express();
 var PORT = 8203;
 
 // Mongo init
-var mongoClient = require('mongodb').MongoClient;
-var mongoPORT = 26124;
-var MONGODB_URL = "mongodb://myfis.herokuapp.com:" +mongoPORT+ "/sampledb";
+// var mongoClient = require('mongodb').MongoClient;
+// var mongoPORT = 26124;
+// var MONGODB_URL = "mongodb://myfis.herokuapp.com:" +mongoPORT+ "/sampledb";
 
 // Object init
 var peopleSchema = require('./people.js');
@@ -52,22 +52,22 @@ var people = new peopleSchema({
 //     }
 // });
 
-function insertDb(){
-    db.collection('persons').insertOne(people, function(err, res){
-        err ? console.log(err) : console.log(res);
+// function insertDb(){
+//     db.collection('persons').insertOne(people, function(err, res){
+//         err ? console.log(err) : console.log(res);
 
-        db.close;
-    });
-}
+//         db.close;
+//     });
+// }
 
-function updateDb(db, name, age){
-    db.collection('persons').updateOne(
-        {name : name},
-        {$set : {age : age}},
-        function(err, res){
-            err ? console.log(err) : console.log(res);
+// function updateDb(db, name, age){
+//     db.collection('persons').updateOne(
+//         {name : name},
+//         {$set : {age : age}},
+//         function(err, res){
+//             err ? console.log(err) : console.log(res);
 
-            db.close;
-        }
-    );
-}
+//             db.close;
+//         }
+//     );
+// }
