@@ -2,11 +2,14 @@
  * Init Express for http framework
  * Init body-parser for receive POST data
  * Init morgan for unit testing
+ * Init request for self-request to prevent server from sleep
  */
 var express = require('express');
 var logger = require('morgan');
 var parser = require('body-parser');
+var request = require('request');
 var app = express();
+var url = "https://myfis.herokuapp.com/";
 
 app.set('port', (process.env.PORT || 46195));       // set port to run into
 app.use(express.static(__dirname + '/public'));     // app root dir
@@ -27,7 +30,6 @@ app.listen(app.get('port'), function() {
 app.get("/api/user", function(req, res){
     var token = req.query.token;
     var name = req.query.name;
-    var name = (typeof req.query.name == "undefinied" ? "Mbret" : req.query.name);
 
     if(req.query.name == null){
         res.status(404);
@@ -36,12 +38,6 @@ app.get("/api/user", function(req, res){
         res.status(200)
         res.send(name);
     }
-
-    // res.json({
-    //     token : token,
-    //     name : name,
-    //     message : "Hi GET!"
-    // });
 });
 
 /**
@@ -77,3 +73,11 @@ app.param('name', function(req, res, next, name){
 app.get("/api/user/:name", function(req, res){
     res.send(req.message);
 });
+
+/**
+ * Timer for request itself to prevent server from sleep
+ */
+setInterval(function(){
+    request(url);
+    console.log("Requesting self again in 20 minutes");
+},1200000);
