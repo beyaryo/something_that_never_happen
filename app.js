@@ -7,7 +7,7 @@ var PORT = 8203;
 // Mongo init
 var mongoClient = require('mongodb').MongoClient;
 var mongoPORT = 26124;
-var MONGODB_URL = "mongodb://localhost:" +mongoPORT+ "/sampledb";
+var MONGODB_URL = "mongodb://myfis.herokuapp.com:" +mongoPORT+ "/sampledb";
 
 // Object init
 var peopleSchema = require('./people.js');
@@ -42,15 +42,15 @@ var people = new peopleSchema({
     age : 18
 });
 
-mongoClient.connect(MONGODB_URL, function(err, db){
-    if(err){
-        console.log(err);
-        return;
-    }else{
-        console.log("DB connected on port " +mongoPORT+ "!");
-        // updateDb(db, "Rizal", 30);
-    }
-});
+// mongoClient.connect(MONGODB_URL, function(err, db){
+//     if(err){
+//         console.log(err);
+//         return;
+//     }else{
+//         console.log("DB connected on port " +mongoPORT+ "!");
+//         // updateDb(db, "Rizal", 30);
+//     }
+// });
 
 function insertDb(){
     db.collection('persons').insertOne(people, function(err, res){
