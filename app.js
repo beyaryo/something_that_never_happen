@@ -9,13 +9,13 @@ var parser = require('body-parser');
 var app = express();
 
 app.set('port', (process.env.PORT || 46195));       // set port to run into
-app.use(express.static(__dirname + '/public'));     // server root dir
+app.use(express.static(__dirname + '/public'));     // app root dir
 app.use(logger('dev'));                             // unit testing
-server.use(parser.json());                          // support json encoded body
-server.use(parser.urlencoded({extended : true}));   // support encoded body
+app.use(parser.json());                          // support json encoded body
+app.use(parser.urlencoded({extended : true}));   // support encoded body
 
 /**
- * Run server
+ * Run app
  */
 app.listen(app.get('port'), function() {
     console.log('Node app is running on port', app.get('port'));
@@ -24,7 +24,7 @@ app.listen(app.get('port'), function() {
 /**
  * User do GET request
  */
-server.get("/api/user", function(req, res){
+app.get("/api/user", function(req, res){
     var token = req.query.token;
     var name = req.query.name;
     var name = (typeof req.query.name == "undefinied" ? "Mbret" : req.query.name);
@@ -47,7 +47,7 @@ server.get("/api/user", function(req, res){
 /**
  * User do POST request
  */
-server.post("/api/user", function(req, res){
+app.post("/api/user", function(req, res){
     var token = req.body.token;
     var name = req.body.name;
 
@@ -61,7 +61,7 @@ server.post("/api/user", function(req, res){
 /**
  * Middleware for spesific name
  */
-server.param('name', function(req, res, next, name){
+app.param('name', function(req, res, next, name){
     if(name == "bey"){
         req.message = "Hi bey, how's your doing?";
     }else{
@@ -74,6 +74,6 @@ server.param('name', function(req, res, next, name){
 /**
  * User do GET request for spesific name
  */
-server.get("/api/user/:name", function(req, res){
+app.get("/api/user/:name", function(req, res){
     res.send(req.message);
 });
