@@ -62,12 +62,15 @@ function handleSocket(socket){
         io.emit('logout', {message : "Someone disconnected"});
     });
 
+    /**
+     * Handle transaction when user login
+     */
     socket.on('login', function(id, pass, fn){
         if(id != null && pass != null){
             if(id == 'b@g' && pass == 'tesuto'){
                 fn({code : 200, message : "Welcome bey!"});
             }else{
-                fn({code : 401, message : "Credential is not valid"});
+                fn({code : 401, message : "Credential isn't valid"});
             }
         }else{
             fn({code : 400, message : "Credential can't be empty"});
