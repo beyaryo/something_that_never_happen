@@ -11,6 +11,9 @@ var request = require('request');
 var app = express();
 var url = "https://myfis.herokuapp.com/";
 
+var socketGw = null;
+var socketClient = null;
+
 app.set('port', (process.env.PORT || 46195));       // set port to run into
 app.use(express.static(__dirname + '/public'));     // app root dir
 app.use(logger('dev'));                             // unit testing
@@ -26,17 +29,16 @@ var io = socketIO.listen(app.listen(app.get('port'), function(){
  * User connect
  */
 io.on('connection', function (socket) {
-    console.log('New user connected', socket.id);
 
     /**
      * Broadcast to self
      */
-    socket.emit('device_connected', {message : 'Device connected'});
+    // socket.emit('device_connected', {message : 'Device connected'});
 
     /**
      * Broadcast to everyone but self
      */
-    socket.broadcast.emit('device_connected', {message : 'Someone connected'});
+    // socket.broadcast.emit('device_connected', {message : 'Someone connected'});
 
     handleSocket(socket);
 });
@@ -53,8 +55,37 @@ setInterval(function(){
  * Handle all transaction in socket
  */
 function handleSocket(socket){
+
+    socket.on('register_gateway', function(id, fn){
+        socketGw = socket;
+        socket.broadcast.emit('device_connected', {message : "Gateway status from down to up"});
+        fn('Gateway registered');
+    });
+
+    socket.on('register_client', function(id, fn){
+        socketClient = socket;
+        fn('Client registered')
+    });
+
+    socket.on('home_monitor', function(temp, hum, co, smoke){
+        // if(socketClient != null){
+        //     socketClient.emit('home', {
+        //         'temp' : temp,
+        //         'hum' : hum,
+        //         'co' : co,
+        //         'smoke' : smoke
+        //     });
+        // }
+    });
+
     socket.on('disconnect', function(){
         console.log("User disconnected");
+
+        if(socket == socketClient){
+            socketClient = null;
+        }else if(socket == socketGw){
+            socketGw = null;
+        }
 
         /**
          * Broadcast to everyone
@@ -75,13 +106,5 @@ function handleSocket(socket){
         }else{
             fn({code : 400, message : "Credential can't be empty"});
         }
-    })
-
-    socket.on('message', function(msg){
-        
-        /**
-         * Broadcast to everyone
-         */
-        io.emit('message', {message : msg});
     });
 }
