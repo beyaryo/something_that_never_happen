@@ -31,12 +31,12 @@ io.on('connection', function (socket) {
     /**
      * Broadcast to self
      */
-    socket.emit('login', {message : 'Welcome to chat room'});
+    socket.emit('device_connected', {message : 'Device connected'});
 
     /**
      * Broadcast to everyone but self
      */
-    socket.broadcast.emit('login', {message : 'Someone connected'});
+    socket.broadcast.emit('device_connected', {message : 'Someone connected'});
 
     handleSocket(socket);
 });
@@ -61,6 +61,18 @@ function handleSocket(socket){
          */
         io.emit('logout', {message : "Someone disconnected"});
     });
+
+    socket.on('login', function(id, pass, fn){
+        if(id != null && pass != null){
+            if(id == 'b@g' && pass == 'tesuto'){
+                fn({code : 200, message : "Welcome bey!"});
+            }else{
+                fn({code : 401, message : "Credential is not valid"});
+            }
+        }else{
+            fn({code : 400, message : "Credential can't be empty"});
+        }
+    })
 
     socket.on('message', function(msg){
         
