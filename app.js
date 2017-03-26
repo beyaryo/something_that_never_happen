@@ -30,6 +30,8 @@ var io = socketIO.listen(app.listen(app.get('port'), function(){
  */
 io.on('connection', function (socket) {
 
+    console.log('New device connected', socket.id);
+
     /**
      * Broadcast to self
      */
