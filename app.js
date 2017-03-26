@@ -70,29 +70,25 @@ function handleSocket(socket){
 
     socket.on('sensor_value', function(data){
         console.log(data);
-        // if(socketClient != null){
-        //     socketClient.emit('home', {
-        //         'temp' : temp,
-        //         'hum' : hum,
-        //         'co' : co,
-        //         'smoke' : smoke
-        //     });
-        // }
+        if(socketClient != null){
+            socketClient.emit('sensor_value', data);
+        }
     });
 
     socket.on('disconnect', function(){
-        console.log("User disconnected");
 
         if(socket == socketClient){
+            console.log("Client disconnected");
             socketClient = null;
         }else if(socket == socketGw){
+            console.log("Gateway disconnected");
             socketGw = null;
         }
 
         /**
          * Broadcast to everyone
          */
-        io.emit('logout', {message : "Someone disconnected"});
+        // io.emit('logout', {message : "Someone disconnected"});
     });
 
     /**
