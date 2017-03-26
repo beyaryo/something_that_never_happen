@@ -6,7 +6,6 @@
  */
 var express = require('express');
 var logger = require('morgan');
-
 var socketIO = require('socket.io');
 var request = require('request');
 var app = express();
@@ -27,17 +26,17 @@ var io = socketIO.listen(app.listen(app.get('port'), function(){
  * User connect
  */
 io.on('connection', function (socket) {
-    console.log('New user connected');
+    console.log('New user connected', socket.id);
 
     /**
      * Broadcast to self
      */
-    socket.emit('login', 'Welcome to chat room');
+    socket.emit('login', {message : 'Welcome to chat room'});
 
     /**
      * Broadcast to everyone but self
      */
-    socket.broadcast.emit('login', 'Someone connected');
+    socket.broadcast.emit('login', {message : 'Someone connected'});
 
     handleSocket(socket);
 });
@@ -60,7 +59,7 @@ function handleSocket(socket){
         /**
          * Broadcast to everyone
          */
-        io.emit('logout', "Someone disconnected");
+        io.emit('logout', {message : "Someone disconnected"});
     });
 
     socket.on('message', function(msg){
@@ -68,6 +67,6 @@ function handleSocket(socket){
         /**
          * Broadcast to everyone
          */
-        io.emit('message', msg);
+        io.emit('message', {message : msg});
     });
 }
