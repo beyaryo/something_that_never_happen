@@ -30,8 +30,6 @@ var io = socketIO.listen(app.listen(app.get('port'), function(){
  */
 io.on('connection', function (socket) {
 
-    console.log('New device connected', socket.id);
-
     /**
      * Broadcast to self
      */
@@ -60,16 +58,18 @@ function handleSocket(socket){
 
     socket.on('register_gateway', function(id, fn){
         socketGw = socket;
-        socket.broadcast.emit('device_connected', {message : "Gateway status from down to up"});
+        console.log('New gateway registered', socket.id);
         fn('Gateway registered');
     });
 
     socket.on('register_client', function(id, fn){
         socketClient = socket;
-        fn('Client registered')
+        console.log('New client registered', socket.id);
+        fn('Client registered');
     });
 
-    socket.on('home_monitor', function(temp, hum, co, smoke){
+    socket.on('sensor_value', function(data){
+        console.log(data);
         // if(socketClient != null){
         //     socketClient.emit('home', {
         //         'temp' : temp,
