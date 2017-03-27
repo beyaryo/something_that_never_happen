@@ -1,16 +1,30 @@
 /**
  * Init Express for http framework
- * Init body-parser for receive POST data
  * Init morgan for unit testing
+ * Init socket.io for websocketing
  * Init request for self-request to prevent server from sleep
+ * Init mongoose for handle database transaction
  */
 var express = require('express');
 var logger = require('morgan');
 var socketIO = require('socket.io');
 var request = require('request');
 var app = express();
-var url = "https://myfis.herokuapp.com/";
 
+/**
+ * Import config file
+ */
+var config = require('./config');
+
+/**
+ * Import model user
+ */
+var modelUser = require('./models/user');
+
+/**
+ * Init global variable
+ */
+var url = config.hostedServerUrl;
 var socketGw = null;
 var socketClient = null;
 
@@ -29,17 +43,6 @@ var io = socketIO.listen(app.listen(app.get('port'), function(){
  * User connect
  */
 io.on('connection', function (socket) {
-
-    /**
-     * Broadcast to self
-     */
-    // socket.emit('device_connected', {message : 'Device connected'});
-
-    /**
-     * Broadcast to everyone but self
-     */
-    // socket.broadcast.emit('device_connected', {message : 'Someone connected'});
-
     handleSocket(socket);
 });
 
@@ -56,53 +59,24 @@ setInterval(function(){
  */
 function handleSocket(socket){
 
-    socket.on('register_gateway', function(id, fn){
-        socketGw = socket;
-        console.log('New gateway registered', socket.id);
-        fn('Gateway registered');
-    });
-
-    socket.on('register_client', function(id, fn){
-        socketClient = socket;
-        console.log('New client registered', socket.id);
-        fn('Client registered');
-    });
-
-    socket.on('sensor_value', function(data){
-        console.log(data);
-        if(socketClient != null){
-            socketClient.emit('sensor_value', data);
+    socket.on('join_room', function(room){
+        if(socket.room != room){
+            socket.leave(socket.room);
         }
+
+        socket.join(room);
+        socket.room = room;
+        console.log('Device ' +socket.id+ " join room '" +room+ "'");
+    });
+
+    socket.on('gateway_data', function(data){
+        io.sockets.in(socket.room).emit('sensor_value', data);
     });
 
     socket.on('disconnect', function(){
-
-        if(socket == socketClient){
-            console.log("Client disconnected");
-            socketClient = null;
-        }else if(socket == socketGw){
-            console.log("Gateway disconnected");
-            socketGw = null;
-        }
-
-        /**
-         * Broadcast to everyone
-         */
-        // io.emit('logout', {message : "Someone disconnected"});
-    });
-
-    /**
-     * Handle transaction when user login
-     */
-    socket.on('login', function(id, pass, fn){
-        if(id != null && pass != null){
-            if(id == 'b@g' && pass == 'tesuto'){
-                fn({code : 200, message : "Welcome bey!"});
-            }else{
-                fn({code : 401, message : "Credential isn't valid"});
-            }
-        }else{
-            fn({code : 400, message : "Credential can't be empty"});
+        if(socket.room){
+            console.log('Device ' +socket.id+ " leave room '" +socket.room+ "'");
+            socket.leave(socket.room);
         }
     });
 }
