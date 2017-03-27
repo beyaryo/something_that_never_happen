@@ -27,7 +27,7 @@
             
             $('form').submit(function(){
                 socket.emit('join_room', $('#m').val());
-                $('#messages').append($('<li>').text("Join room " .$('#m').val()));
+                $('#messages').append($('<li>').text("Join room ".concat($('#m').val())));
                 $('#m').val('');
                 return false;
             });
