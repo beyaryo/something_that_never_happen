@@ -25,17 +25,24 @@
         $(function () {
             var socket = io();
             
+            // $('form').submit(function(){
+            //     socket.emit('join_room', $('#m').val());
+            //     $('#messages').append($('<li>').text("Join room ".concat($('#m').val())));
+            //     $('#m').val('');
+            //     return false;
+            // });
+            
             $('form').submit(function(){
-                socket.emit('join_room', $('#m').val());
-                $('#messages').append($('<li>').text("Join room ".concat($('#m').val())));
+                socket.emit('test_firebase', $('#m').val());
+                $('#messages').append($('<li>').text("Message ".concat($('#m').val(), " send!")));
                 $('#m').val('');
                 return false;
             });
 
-            socket.on('sensor_value', function(msg){
-                $('#messages').append($('<li>').text(JSON.stringify(msg)));
-                $("html, body").animate({ scrollTop: $(document).height() }, "slow");
-            });
+            // socket.on('sensor_value', function(msg){
+            //     $('#messages').append($('<li>').text(JSON.stringify(msg)));
+            //     $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+            // });
         });
     </script>
   </body>
