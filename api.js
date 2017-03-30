@@ -41,6 +41,7 @@ firebaseAdmin.initializeApp({
  */
 var modelUser = require('./models/user');
 var modelGateway = require('./models/gateway');
+var modelSensor = require('./models/sensor');
 
 /**
  * Init global variable
@@ -241,6 +242,17 @@ app.get("/api/users", function(req, res){
 });
 
 /**
+ * Get sensor values
+ */
+app.get("/api/sensors", function(req, res){
+    modelSensor.find({}, function(err, values){
+        if(err) throw err;
+
+        res.json(values);
+    });
+});
+
+/**
  * User connect
  */
 io.on('connection', function (socket) {
@@ -263,6 +275,22 @@ function handleSocket(socket){
     });
 
     socket.on('gateway_data', function(data){
+        modelSensor.create({
+                gateway_id : socket.room,
+                temp : data.temp,
+                hum : data.hum,
+                co : data.co,
+                smoke : data.smoke,
+                _ts : new Date()
+            }, function(err, res){
+                if(err){
+                    // console.log(err);
+                }else{
+                    // console.log("Success save sensor data");
+                }
+            }
+        );
+       
         io.sockets.in(socket.room).emit('sensor_value', data);
     });
 
@@ -331,3 +359,16 @@ setInterval(function(){
     request(url);
     console.log("Requesting self again in 20 minutes");
 }, 1200000);
+
+/**
+ * Timer for remove old data in database
+ */
+setInterval(function(){
+    var now = new Date();
+    console.log(now);
+
+    // modelSensor.find({_ts : {$lt : now}}).remove(function(err, res){
+    //     if(err) console.log("Error delete data");
+    //     else console.log("Delete data success");
+    // });
+},3600000);
