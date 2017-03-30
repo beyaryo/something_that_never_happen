@@ -2,9 +2,9 @@
   "name": "node_server",
   "version": "1.0.0",
   "description": "A simple node app of mine",
-  "main": "app.js",
+  "main": "api.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node api.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engine": {

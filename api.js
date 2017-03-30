@@ -80,6 +80,8 @@ app.post("/api/login", function(req, res){
     var email = req.body.email;                 // get email from form
     var pass = req.body.pass;                   // get pass from form
     var tokenFirebase = req.body.token_firebase // get firebase token from form
+    console.log(email);
+    console.log(pass);
     console.log(tokenFirebase);
 
     /**
