@@ -245,7 +245,7 @@ app.get("/api/users", function(req, res){
  * Get sensor values
  */
 app.get("/api/sensors", function(req, res){
-    modelSensor.find({}, function(err, values){
+    modelSensor.count({}, function(err, values){
         if(err) throw err;
 
         res.json(values);
