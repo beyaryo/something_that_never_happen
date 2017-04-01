@@ -529,8 +529,8 @@ setInterval(function(){
                         console.log("\nSend to : " +res.token_firebase);
                         console.log("Data : " +JSON.stringify(val)+ "");
 
-                        if(res.token_firebase)
-                            sendNotification(JSON.stringify(val), "AVG_DATA", res.token_firebase);
+                        // if(res.token_firebase)
+                        //     sendNotification(JSON.stringify(val), "AVG_DATA", res.token_firebase);
                     });
                 });
             })
