@@ -371,13 +371,15 @@ function handleSocket(socket){
     });
 
     socket.on('gateway_data', function(data){
+        var now = new Date();
+
         modelSensor.create({
                 gateway_id : socket.room,
                 temp : data.temp,
                 hum : data.hum,
                 co : data.co,
                 smoke : data.smoke,
-                _ts : new Date()
+                _ts : now
             }, function(err, res){
                 if(err){
                     // console.log(err);
