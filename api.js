@@ -375,6 +375,7 @@ function handleSocket(socket){
     });
 
     socket.on('gateway_data', function(data){
+        var now = new Date();
 
         modelSensor.create({
                 gateway_id : socket.room,
@@ -382,7 +383,7 @@ function handleSocket(socket){
                 hum : data.hum,
                 co : data.co,
                 smoke : data.smoke,
-                _ts : new Date()
+                _ts : now
             }, function(err, res){
                 if(err){
                     // console.log(err);
@@ -487,7 +488,7 @@ setInterval(function(){
 setInterval(function(){
     var now = new Date()
     console.log(now);
-    
+
     /**
      * Query for get average sensor value
      */
@@ -526,8 +527,11 @@ setInterval(function(){
                      * Get user firebase token for every gateway's owner
                      */
                     modelUser.findOne({email : email}, {_id : 0, token_firebase : 1}, function(err, res){
-                        console.log("\nSend to : " +res.token_firebase);
-                        console.log("Data : " +JSON.stringify(val)+ "");
+
+                        if(res.token_firebase){
+                            console.log("\nSend to : " +res.token_firebase);
+                            console.log("Data : " +JSON.stringify(val)+ "");
+                        }
 
                         // if(res.token_firebase)
                         //     sendNotification(JSON.stringify(val), "AVG_DATA", res.token_firebase);
