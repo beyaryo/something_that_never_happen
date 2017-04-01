@@ -75,15 +75,12 @@ var io = socketIO.listen(app.listen(app.get('port'), function(){
 }));
 
 /**
- * User do login request
+ * User login
  */
 app.post("/api/login", function(req, res){
     var email = req.body.email;                 // get email from form
     var pass = req.body.pass;                   // get pass from form
     var tokenFirebase = req.body.token_firebase // get firebase token from form
-    console.log(email);
-    console.log(pass);
-    console.log(tokenFirebase);
 
     /**
      * Find 1 user depend on passed email and password
@@ -92,8 +89,7 @@ app.post("/api/login", function(req, res){
      */
     modelUser.findOne({email: email, password: pass}, function(err, user){
         if(err){
-            res.status(503);
-            res.json({message: "Service unavaliable"});
+            res = errorServer(res);
             return;
         }
 
@@ -105,33 +101,33 @@ app.post("/api/login", function(req, res){
              * Save token into database
              */
             user.save(function(err){
-                if(err) console.log(err);
-            });
-
-            modelGateway.find({owner: email}, 
-                {_id:0}, 
-                function(err, gw){
-                    if(err){
-                        res.status(503);
-                        res.json({message: "Service unavaliable"});
-                        return;
-                    }
-
-                    console.log("id : " +user._id);
-                    console.log(gw);
-                    res.status(200);
-                    res.json({name: user.name, token: user.token, gateway: gw});
+                if(err){
+                    res = errorServer(res);
+                    return;
                 }
-            );
+
+
+                modelGateway.find({owner: email}, 
+                    {_id:0}, 
+                    function(err, gws){
+                        if(err){
+                            res = errorServer(res);
+                            return;
+                        }
+
+                        res.status(200);
+                        res.json({name: user.name, token: user.token, gateway: gws});
+                    }
+                );
+            });
         }else{
-            res.status(401);
-            res.json({message: "Credential not valid"});
+            res = errorCredential(res);
         }
     });
 });
 
 /**
- * User do register request
+ * Register new user
  */
 app.post("/api/register", function(req, res){
 
@@ -140,7 +136,7 @@ app.post("/api/register", function(req, res){
      * If email already registered, return 400
      */
     modelUser.findOne(
-        {email: req.body.email, password: req.body.pass},
+        {email: req.body.email},
         function(err, user){
             if(!user){
                 modelUser.create({
@@ -152,25 +148,30 @@ app.post("/api/register", function(req, res){
                         join_date: new Date()
                     }, function(err, user){
                         if(err){
-                            res.status(503);
-                            res.json({message: "Service unavaliable"});
+                            res = errorServer(res);
                             return;
                         }else{
                             res.status(200);
-                            res.json({message: "Congratulation! Your account registered successfully"});
+                            res.json({
+                                message: "Congratulation! Your account registered successfully",
+                                registered: true
+                            });
                         }
                     }
                 );
             }else{
-                res.status(400);
-                res.json({message: "Account with email ".concat(req.body.email, " already registered")});
+                res.status(200);
+                res.json({
+                    message: "Account with email ".concat(req.body.email, " already registered"),
+                    registered: false
+                });
             }
         }
     );
 });
 
 /**
- * User do check is email available request
+ * Check if email isn't registered yet
  */
 app.post("/api/checkEmail", function(req, res){
     modelUser.findOne({email: req.body.email}, function(err, user){
@@ -182,7 +183,7 @@ app.post("/api/checkEmail", function(req, res){
 });
 
 /**
- * User do check is phone number available request
+ * Check if phone number isn't registered yet
  */
 app.post("/api/checkPhone", function(req, res){
     modelUser.findOne({phone: req.body.phone, function(err, user){
@@ -194,40 +195,135 @@ app.post("/api/checkPhone", function(req, res){
 });
 
 /**
- * User do register gateway request
+ * Add gateway
  */
 app.post("/api/registerGateway", function(req, res){
 
     /**
-     * Find if gateway has been registered
-     * If gateway already registered or gateway_id wrong, return 400
+     * Credential validation
      */
-    modelGateway.findOneAndUpdate({gateway_id: req.body.gateway_id, registered: false},
-        {$set: {
-            gateway_id: req.body.gateway_id,
-            name: req.body.name,
-            lat: req.body.lat,
-            lng: req.body.lng,
-            address: req.body.address,
-            owner: [req.body.owner],
-            registered: true
-        }}, function(err, gw){
-            if(err){
-                res.status(503);
-                res.json({message: "Service unavaliable"});
-                return; 
-            }
+    modelUser.findOne({token: req.body.token}, function(err, user){
+        if(err){
+            res = errorServer(res);
+            return;
+        }
 
-            if(!gw){
-                res.status(400);
-                res.json({message: "Gateway serial number unidentified or it has been registered"});
+        if(!user){
+            res = errorCredential(res);
+            return;
+        }
+
+        /**
+         * Find if gateway has been registered
+         * If gateway already registered or gateway_id wrong, return 400
+         */
+        modelGateway.findOneAndUpdate({gateway_id: req.body.gateway_id, registered: false},
+            {$set: {
+                gateway_id: req.body.gateway_id,
+                name: req.body.name,
+                lat: req.body.lat,
+                lng: req.body.lng,
+                address: req.body.address,
+                owner: [req.body.owner],
+                registered: true
+            }}, function(err, gw){
+                if(err){
+                    res.status(503);
+                    res.json({message: "Service unavaliable"});
+                    return; 
+                }
+
+                if(!gw){
+                    res.status(200);
+                    res.json({
+                        message: "Gateway serial number unidentified or it has been registered",
+                        registered : false
+                    });
+                    return;
+                }
+
+                res.status(200);
+                res.json({
+                    message: "Your gateway registered successfully",
+                    registered: true
+                });
+            }
+        );
+    });
+});
+
+/**
+ * Add user to monitor spesific gateway
+ */
+app.post("/api/allowUser", function(req, res){
+
+    /**
+     * Credential validation
+     */
+    modelUser.findOne({token: req.body.token}, function(err, user){
+        if(err){
+            res = errorServer(res);
+            return;
+        }
+
+        if(!user){
+            res = errorCredential(res);
+            return;
+        }
+
+        /**
+         * Check if email is registered
+         * if not, return message not registered
+         */
+        modelUser.findOne({email: req.body.email}, function(err, user){
+            if(err){
+                res = errorServer(res);
                 return;
             }
 
-            res.status(200);
-            res.json({message: "Your gateway registered successfully"});
-        }
-    );
+            if(!user){
+            res.json({
+                    message: "Email isn\'t registered",
+                    allowed: false
+                });
+                return; 
+            }
+
+            /**
+             * Find gateway with spesific id and already registered
+             * w/o pushed email in owner array
+             */
+            modelGateway.findOneAndUpdate({
+                    gateway_id: req.body.gateway_id, 
+                    registered: true, 
+                    owner: {$ne: req.body.email}
+                }, 
+                {$push: {owner: req.body.email}},
+                function(err, gw){
+                    if(err){
+                        res.status(503);
+                        res.json({message: "Service unavaliable"});
+                        return; 
+                    }
+                
+                    res.status(200);
+
+                    if(!gw){
+                        res.json({
+                            message: "User already allowed to monitor this gateway",
+                            allowed: false
+                        });
+                        return;
+                    }
+
+                    res.json({
+                        message: req.body.email.concat(" allowed to monitor gateway"),
+                        allowed: true
+                    });
+                }
+            );
+        }); 
+    });
 })
 
 /**
@@ -308,7 +404,7 @@ function handleSocket(socket){
             if(!user){
                 console.log("Token not registered");
             }else{
-                sendNotification(data, user.token_firebase);
+                sendNotification(data, "test", user.token_firebase);
             }
         });
     })
@@ -317,14 +413,15 @@ function handleSocket(socket){
 /**
  * Handle notification
  */
-function sendNotification(data, token){
+function sendNotification(data, flag, token){
 
     /**
      * Initialize data 
      */
     var payload = {
         data : {
-            data : data
+            data : data,
+            flag : flag
         }
         // , notification : {
         //     title : "This is title!",
@@ -347,9 +444,27 @@ function sendNotification(data, token){
             console.log("Success sent message to ", token);
         })
         .catch(function(err){
-            console.log("Error sending message to ", token);
+            console.log("Error sending message to ", err);
         }
     );
+}
+
+/**
+ * Error accessing database handler
+ */
+function errorServer(res){
+    res.status(503);
+    res.json({message: "Service unavaliable"});
+    return res;
+}
+
+/**
+ * Token / email not valid handler
+ */
+function errorCredential(res){
+    res.status(401);
+    res.json({message: "Credential not valid"});
+    return res;
 }
 
 /**
@@ -361,14 +476,59 @@ setInterval(function(){
 }, 1200000);
 
 /**
- * Timer for remove old data in database
+ * Timer for send scheduled push notif to client 
+ * with data of all sensor average value in 30 minutes
  */
 setInterval(function(){
     var now = new Date();
     console.log(now);
+    
+    /**
+     * Query for get average sensor value
+     */
+    var pipelineSensor = [
+        {
+            $group : {
+                _id : "$gateway_id",
+                temp : {$avg : "$temp"},
+                hum : {$avg : "$hum"},
+                co : {$avg : "$co"},
+                smoke : {$avg : "$smoke"}
+            }
+        }
+    ];
+    
+    modelSensor.aggregate(pipelineSensor, function(err, vals){
+        if(err) throw err;
 
-    // modelSensor.find({_ts : {$lt : now}}).remove(function(err, res){
-    //     if(err) console.log("Error delete data");
-    //     else console.log("Delete data success");
-    // });
-},3600000);
+        /**
+         * Delete all sensor value in sensor collection
+         * for saving database space
+         */
+        modelSensor.find({_ts : {$lt : now}}).remove();
+
+        vals.forEach(function(val){
+            
+            /**
+             * Get gateway data depend on sensor.gateway_id
+             */
+            modelGateway.findOne({gateway_id : val._id}, function(err, res){
+                if(!res) return;
+              
+                res.owner.forEach(function(email){
+
+                    /**
+                     * Get user firebase token for every gateway's owner
+                     */
+                    modelUser.findOne({email : email}, {_id : 0, token_firebase : 1}, function(err, res){
+                        console.log("\nSend to : " +res.token_firebase);
+                        console.log("Data : " +JSON.stringify(val)+ "");
+
+                        if(res.token_firebase)
+                            sendNotification(JSON.stringify(val), "AVG_DATA", res.token_firebase);
+                    });
+                });
+            })
+        });
+    });
+}, 60000);
