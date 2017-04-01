@@ -20,6 +20,7 @@ var moment = require('moment');
 var app = express();
 
 console.log(moment());
+console.log(new Date());
 
 /**
  * Import config file
@@ -485,7 +486,7 @@ setInterval(function(){
  * with data of all sensor average value in 30 minutes
  */
 setInterval(function(){
-    var now = moment();
+    var now = new Date();
     console.log(now);
     
     /**
