@@ -19,7 +19,7 @@ var firebaseAdmin = require('firebase-admin');
 var moment = require('moment');
 var app = express();
 
-console.log(moment());
+console.log(moment().format());
 console.log(new Date());
 
 /**
