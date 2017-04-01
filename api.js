@@ -485,8 +485,9 @@ setInterval(function(){
  * with data of all sensor average value in 30 minutes
  */
 setInterval(function(){
-    var now = moment().format();
+    var now = new Date()
     console.log(now);
+    
     /**
      * Query for get average sensor value
      */
