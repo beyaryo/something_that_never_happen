@@ -19,8 +19,8 @@ var firebaseAdmin = require('firebase-admin');
 var moment = require('moment');
 var app = express();
 
-console.log(moment().format());
-console.log(new Date());
+// console.log(moment().format());
+// console.log(new Date());
 
 /**
  * Import config file
@@ -487,7 +487,6 @@ setInterval(function(){
 setInterval(function(){
     var now = new Date();
     console.log(now);
-    
     /**
      * Query for get average sensor value
      */
@@ -510,14 +509,7 @@ setInterval(function(){
          * Delete all sensor value in sensor collection
          * for saving database space
          */
-        modelSensor.find({_ts : {$lt : now}}).remove(function(err, res){
-            if(err){
-                console.log(err);
-                return;
-            }
-
-            console.log(res);
-        });
+        modelSensor.find({_ts : {$lt : now}}).remove();
 
         vals.forEach(function(val){
             
