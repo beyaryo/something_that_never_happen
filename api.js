@@ -16,6 +16,7 @@ var request = require('request');
 var mongoose = require('mongoose');
 var crypto = require('crypto');
 var firebaseAdmin = require('firebase-admin');
+var moment = require('moment');
 var app = express();
 
 /**
@@ -371,7 +372,7 @@ function handleSocket(socket){
     });
 
     socket.on('gateway_data', function(data){
-        var now = new Date();
+        var now = moment();
 
         modelSensor.create({
                 gateway_id : socket.room,
@@ -482,7 +483,7 @@ setInterval(function(){
  * with data of all sensor average value in 30 minutes
  */
 setInterval(function(){
-    var now = new Date();
+    var now = moment();
     console.log(now);
     
     /**

@@ -17,6 +17,7 @@
     "crypto": "0.0.3",
     "express": "^4.15.2",
     "firebase-admin": "^4.1.4",
+    "moment": "^2.18.1",
     "mongodb": "^2.2.25",
     "mongoose": "^4.9.2",
     "monk": "^4.0.0",
