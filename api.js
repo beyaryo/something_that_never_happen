@@ -375,7 +375,6 @@ function handleSocket(socket){
     });
 
     socket.on('gateway_data', function(data){
-        var now = moment();
 
         modelSensor.create({
                 gateway_id : socket.room,
@@ -383,7 +382,7 @@ function handleSocket(socket){
                 hum : data.hum,
                 co : data.co,
                 smoke : data.smoke,
-                _ts : now
+                _ts : new Date()
             }, function(err, res){
                 if(err){
                     // console.log(err);
@@ -511,7 +510,14 @@ setInterval(function(){
          * Delete all sensor value in sensor collection
          * for saving database space
          */
-        modelSensor.find({_ts : {$lt : now}}).remove();
+        modelSensor.find({_ts : {$lt : now}}).remove(function(err, res){
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            console.log(res);
+        });
 
         vals.forEach(function(val){
             
