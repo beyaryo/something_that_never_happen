@@ -19,6 +19,8 @@ var firebaseAdmin = require('firebase-admin');
 var moment = require('moment');
 var app = express();
 
+console.log(moment());
+
 /**
  * Import config file
  */
