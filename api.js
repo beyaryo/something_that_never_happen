@@ -511,10 +511,15 @@ setInterval(function(){
          * Delete all sensor value in sensor collection
          * for saving database space
          */
-        // modelSensor.count({_ts : {$and : [{$lt : now}, {$gt : (now - (60000))}]}}, function(err, values){
-        //     if(err) throw err;
-        //     console.log(values);
-        // });
+        modelSensor.count({
+            $and : [
+                {_ts : {$lt : now}},
+                {_ts : {$gt : (now-60000)}}
+            ]}, function(err, values){
+                if(err) throw err;
+                console.log(values);
+            }
+        );
 
         // modelSensor.find({_ts : {$lt : now}}).remove(function(err, res){
         //     console.log(res.length);
