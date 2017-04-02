@@ -16,11 +16,7 @@ var request = require('request');
 var mongoose = require('mongoose');
 var crypto = require('crypto');
 var firebaseAdmin = require('firebase-admin');
-var moment = require('moment');
 var app = express();
-
-// console.log(moment().format());
-// console.log(new Date());
 
 /**
  * Import config file
@@ -511,19 +507,7 @@ setInterval(function(){
          * Delete all sensor value in sensor collection
          * for saving database space
          */
-        modelSensor.count({
-            $and : [
-                {_ts : {$lt : now}}
-                // {_ts : {$gt : (now-60000)}}
-            ]}, function(err, values){
-                if(err) throw err;
-                console.log(values);
-            }
-        );
-
-        modelSensor.remove({_ts : {$lt : now}}, function(err, sens){
-            console.log(sens);
-        });
+        modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
 
         // modelSensor.find({_ts : {$lt : now}}).remove(function(err, res){
         //     console.log(res.length);
@@ -545,15 +529,13 @@ setInterval(function(){
                     modelUser.findOne({email : email}, {_id : 0, token_firebase : 1}, function(err, res){
 
                         if(res.token_firebase){
-                            console.log("\nSend to : " +res.token_firebase);
-                            console.log("Data : " +JSON.stringify(val)+ "");
+                            // console.log("\nSend to : " +res.token_firebase);
+                            // console.log("Data : " +JSON.stringify(val)+ "");
+                            sendNotification(JSON.stringify(val), "AVG_DATA", res.token_firebase);
                         }
-
-                        // if(res.token_firebase)
-                        //     sendNotification(JSON.stringify(val), "AVG_DATA", res.token_firebase);
                     });
                 });
             })
         });
     });
-}, 60000);
+}, 3600000);
