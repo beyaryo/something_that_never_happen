@@ -513,8 +513,8 @@ setInterval(function(){
          */
         modelSensor.count({
             $and : [
-                {_ts : {$lt : now}},
-                {_ts : {$gt : (now-60000)}}
+                {_ts : {$lt : now}}
+                // {_ts : {$gt : (now-60000)}}
             ]}, function(err, values){
                 if(err) throw err;
                 console.log(values);
