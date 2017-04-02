@@ -521,7 +521,9 @@ setInterval(function(){
             }
         );
 
-        modelSensor.remove({_ts : {$lt : now}});
+        modelSensor.remove({_ts : {$lt : now}}, function(err, sens){
+            console.log(sens);
+        });
 
         // modelSensor.find({_ts : {$lt : now}}).remove(function(err, res){
         //     console.log(res.length);
