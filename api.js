@@ -376,6 +376,7 @@ function handleSocket(socket){
 
     socket.on('gateway_data', function(data){
         var now = new Date();
+        console.log(now.getTime());
 
         modelSensor.create({
                 gateway_id : socket.room,
