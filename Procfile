@@ -1,1 +1,1 @@
-web: env TZ='Asia/Jakarta' node api.js
+web: node api.js

@@ -388,7 +388,7 @@ function handleSocket(socket){
                 if(err){
                     // console.log(err);
                 }else{
-                    // console.log("Success save sensor data");
+                    console.log(res._ts);
                 }
             }
         );
