@@ -6,7 +6,7 @@ var sensorSchema = new mongoose.Schema({
     co : Number,
     hum : Number,
     smoke : Number,
-    _ts : Date
+    _ts : Number
 }, {collection: 'sensor'});
 
 module.exports = mongoose.model('sensor', sensorSchema);

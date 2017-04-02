@@ -375,8 +375,7 @@ function handleSocket(socket){
     });
 
     socket.on('gateway_data', function(data){
-        var now = new Date();
-        console.log(now.getTime());
+        var now = (new Date()).getTime();
 
         modelSensor.create({
                 gateway_id : socket.room,
@@ -487,8 +486,7 @@ setInterval(function(){
  * with data of all sensor average value in 30 minutes
  */
 setInterval(function(){
-    var now = new Date();
-    now.setHours(now.getHours() + 7);
+    var now = (new Date()).getTime();
     console.log(now);
 
     /**
