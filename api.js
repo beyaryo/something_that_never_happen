@@ -500,7 +500,6 @@ setInterval(function(){
  */
 setInterval(function(){
     var now = (new Date()).getTime();
-    console.log(now);
 
     /**
      * Query for get average sensor value
@@ -552,5 +551,5 @@ setInterval(function(){
             })
         });
     });
-}, 60000);
+}, 3600000);
 //3600000
