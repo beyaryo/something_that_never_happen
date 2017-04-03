@@ -224,7 +224,7 @@ app.post("/api/registerGateway", function(req, res){
                 lat: req.body.lat,
                 lng: req.body.lng,
                 address: req.body.address,
-                owner: [req.body.owner],
+                owner: [req.body.email],
                 registered: true
             }}, function(err, gw){
                 if(err){
@@ -324,7 +324,24 @@ app.post("/api/allowUser", function(req, res){
             );
         }); 
     });
-})
+});
+
+/**
+ * Request user profile
+ */
+app.post("/api/me", function(req, res){
+    modelUser.find({token: req.body.token}, {_id: 0, __v: 0, token: 0, token_firebase: 0}, function(err, user){
+        if(err){
+            res = errorServer(res);
+            return;
+        }
+
+        if(user){
+            res.status(200);
+            res.json(user);
+        }
+    });
+});
 
 /**
  * Get all users
@@ -479,7 +496,7 @@ setInterval(function(){
 
 /**
  * Timer for send scheduled push notif to client 
- * with data of all sensor average value in 30 minutes
+ * with data of all sensor average value in an hour
  */
 setInterval(function(){
     var now = (new Date()).getTime();
@@ -509,10 +526,6 @@ setInterval(function(){
          */
         modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
 
-        // modelSensor.find({_ts : {$lt : now}}).remove(function(err, res){
-        //     console.log(res.length);
-        // });
-
         vals.forEach(function(val){
             
             /**
@@ -531,6 +544,7 @@ setInterval(function(){
                         if(res.token_firebase){
                             // console.log("\nSend to : " +res.token_firebase);
                             // console.log("Data : " +JSON.stringify(val)+ "");
+                            val.timestamp = now;
                             sendNotification(JSON.stringify(val), "AVG_DATA", res.token_firebase);
                         }
                     });
@@ -538,4 +552,5 @@ setInterval(function(){
             })
         });
     });
-}, 3600000);
+}, 60000);
+// 3600000
