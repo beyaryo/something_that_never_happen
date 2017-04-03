@@ -499,7 +499,10 @@ setInterval(function(){
  * with data of all sensor average value in an hour
  */
 setInterval(function(){
-    var now = (new Date()).getTime();
+    var date = new Date();
+    var now = date.getTime();
+    console.log(date);
+    console.log(now);
 
     /**
      * Query for get average sensor value
@@ -551,5 +554,5 @@ setInterval(function(){
             })
         });
     });
-}, 3600000);
+}, 60000);
 //3600000
