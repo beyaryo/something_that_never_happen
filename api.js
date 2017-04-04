@@ -546,7 +546,7 @@ setInterval(function(){
     var pipelineSensor = [
         {
             $group : {
-                gateway_id : "$gateway_id",
+                _id : "$gateway_id",
                 temp : {$avg : "$temp"},
                 hum : {$avg : "$hum"},
                 co : {$avg : "$co"},
@@ -569,7 +569,7 @@ setInterval(function(){
             /**
              * Get gateway data depend on sensor.gateway_id
              */
-            modelGateway.findOne({gateway_id : val.gateway_id}, function(err, gw){
+            modelGateway.findOne({gateway_id : val._id}, function(err, gw){
                 if(!gw) return;
               
                 gw.owner.forEach(function(email){
@@ -582,9 +582,9 @@ setInterval(function(){
                         if(user.token_firebase){
                             // console.log("\nSend to : " +user.token_firebase);
                             // console.log("Data : " +JSON.stringify(val)+ "");
-                            var gateway_id = val.gateway_id;
+                            var gateway_id = val._id;
                             val.timestamp = now;
-                            delete val.gateway_id;
+                            delete val._id;
 
                             sendNotification(JSON.stringify(val), "AVG_DATA", gateway_id, user.token_firebase);
                             // sendNotification(JSON.stringify(val), "AVG_DATA", user.token_firebase);
