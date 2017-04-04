@@ -469,6 +469,42 @@ function sendNotification(data, flag, token){
 }
 
 /**
+ * Handle notification with more attribute
+ */
+function sendNotification(data, flag, gateway_id, token){
+
+    /**
+     * Initialize data 
+     */
+    var payload = {
+        data : {
+            data : data,
+            flag : flag,
+            gateway_id : gateway_id
+        }
+    };
+
+    /**
+     * Initialize option
+     */
+    var options = {
+        priority : "high"
+    };
+
+    /**
+     * Send message to passed token
+     */
+    firebaseAdmin.messaging().sendToDevice(token, payload, options)
+        .then(function(res){
+            console.log("Success sent message to ", token);
+        })
+        .catch(function(err){
+            console.log("Error sending message to ", err);
+        }
+    );
+}
+
+/**
  * Error accessing database handler
  */
 function errorServer(res){
@@ -510,7 +546,7 @@ setInterval(function(){
     var pipelineSensor = [
         {
             $group : {
-                _id : "$gateway_id",
+                gateway_id : "$gateway_id",
                 temp : {$avg : "$temp"},
                 hum : {$avg : "$hum"},
                 co : {$avg : "$co"},
@@ -533,26 +569,30 @@ setInterval(function(){
             /**
              * Get gateway data depend on sensor.gateway_id
              */
-            modelGateway.findOne({gateway_id : val._id}, function(err, res){
-                if(!res) return;
+            modelGateway.findOne({gateway_id : val.gateway_id}, function(err, gw){
+                if(!gw) return;
               
-                res.owner.forEach(function(email){
+                gw.owner.forEach(function(email){
 
                     /**
                      * Get user firebase token for every gateway's owner
                      */
-                    modelUser.findOne({email : email}, {_id : 0, token_firebase : 1}, function(err, res){
+                    modelUser.findOne({email : email}, {_id : 0, token_firebase : 1}, function(err, user){
 
-                        if(res.token_firebase){
-                            // console.log("\nSend to : " +res.token_firebase);
+                        if(user.token_firebase){
+                            // console.log("\nSend to : " +user.token_firebase);
                             // console.log("Data : " +JSON.stringify(val)+ "");
+                            var gateway_id = val.gateway_id;
                             val.timestamp = now;
-                            sendNotification(JSON.stringify(val), "AVG_DATA", res.token_firebase);
+                            delete val.gateway_id;
+
+                            sendNotification(JSON.stringify(val), "AVG_DATA", gateway_id, user.token_firebase);
+                            // sendNotification(JSON.stringify(val), "AVG_DATA", user.token_firebase);
                         }
                     });
                 });
             })
         });
     });
-}, 3600000);
+}, 60000);
 //3600000
