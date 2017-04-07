@@ -410,6 +410,7 @@ function handleSocket(socket){
     });
 
     socket.on('open_door', function(doorId){
+        console.log(doorId);
         io.sockets.in(socket.room).emit("door", doorId);
     });
 
