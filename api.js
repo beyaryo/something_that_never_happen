@@ -409,6 +409,10 @@ function handleSocket(socket){
         io.sockets.in(socket.room).emit('sensor_value', data);
     });
 
+    socket.on('open_door', function(doorId){
+        io.sockets.in(socket.room).emit("door", doorId);
+    });
+
     socket.on('disconnect', function(){
         if(socket.room){
             console.log('Device ' +socket.id+ " leave room '" +socket.room+ "'");
@@ -469,7 +473,7 @@ function sendNotification(data, flag, token){
 }
 
 /**
- * Handle notification with more attribute
+ * Handle notification with gateway_id attribute
  */
 function sendNotification(data, flag, gateway_id, token){
 
