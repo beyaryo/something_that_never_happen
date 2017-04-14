@@ -389,6 +389,7 @@ function handleSocket(socket){
 
     socket.on('gateway_data', function(data){
         var now = (new Date()).getTime();
+        console.log(data);
 
         modelSensor.create({
                 gateway_id : socket.room,
@@ -410,7 +411,6 @@ function handleSocket(socket){
     });
 
     socket.on('open_door', function(doorId){
-        console.log(doorId);
         io.sockets.in(socket.room).emit("door", doorId);
     });
 
