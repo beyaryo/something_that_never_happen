@@ -43,8 +43,9 @@ socket.on("connect", function(){
 /**
  * When user open spesific door
  */
-socket.on("door", function(doorName){
-    console.log(doorName);
+socket.on("door", function(doorSerial){
+    console.log("Open door : " +doorSerial);
+    serialport.write("1#" +doorSerial+ ";");
 });
 
 /**
@@ -55,6 +56,13 @@ serialport.on("open", function() {
      * Do something here
      */
 });
+
+/**
+ * When serial port error
+ */
+serialport.on("error", function(error){
+    console.log("Serial port error : " +error);
+})
 
 /**
  * All frames parsed by the XBee will be emitted here
@@ -74,6 +82,7 @@ xbeeAPI.on("frame_object", function(frame) {
     var co = getValue(value[6]);
     var smoke = getValue(value[7]);
     var bat = getValue(value[8]);
+    // var prob = fuzzy(temp, hum, co, smoke);
 
     /**
      * Emit sensor value to server
@@ -95,11 +104,3 @@ function joinRoom(){
     socket.emit("join_room", id);
     console.log("Gateway join room " +id);
 }
-
-/**
- * Split value to receive spesific data
- */
-function getValue(val){
-    return (val.split(":"))[1];
-}
-
