@@ -143,7 +143,6 @@ app.post("/api/register", function(req, res){
                         password: req.body.pass,
                         name: req.body.name,
                         phone : req.body.phone,
-                        ektp_data: req.body.ektp_data,
                         join_date: (new Date()).getTime()
                     }, function(err, user){
                         if(err){
@@ -369,7 +368,7 @@ app.get("/api/sensors", function(req, res){
  */
 app.post("/admin/addGateway", function(req, res){
     var gw = new modelGateway({
-        gateway_id: req.gateway_id,
+        gateway_id: req.body.gateway_id,
         registered: false
     });
 
