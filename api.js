@@ -378,7 +378,8 @@ app.post("/admin/addGateway", function(req, res){
 
             res.status(200);
             res.json({
-                message: "Congratulation, gateway added.!"
+                message: req.body.gateway_id
+                // message: "Congratulation, gateway added.!"
             });
         }
     )
