@@ -426,11 +426,11 @@ function handleSocket(socket){
                 gateway_id: room
             }, function(err, gw){
                 if(err){
-                    callback(503, "", "");
+                    callback("503", "", "");
                     return;
                 }
 
-                callback(200, gw.ip, gw.bssid);
+                callback("200", gw.ip, gw.bssid);
             }
         )
     });
