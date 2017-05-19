@@ -436,10 +436,15 @@ function handleSocket(socket){
                         return;
                     }
 
-                    
-                    callback(200, gw.ip, gw.bssid, 
-                        sensor.temp, sensor.hum, sensor.co, sensor.smoke,
-                        sensor.bat, sensor.fuzzy);
+                    if(!sensor){
+                        callback(200, gw.ip, gw.bssid, 
+                            0, 0, 0, 0,
+                            0, 0);
+                    }else{
+                        callback(200, gw.ip, gw.bssid, 
+                            sensor.temp, sensor.hum, sensor.co, sensor.smoke,
+                            sensor.bat, sensor.fuzzy);
+                    }
                 })
             }
         )
