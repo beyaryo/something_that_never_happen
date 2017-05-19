@@ -426,11 +426,21 @@ function handleSocket(socket){
                 gateway_id: room
             }, function(err, gw){
                 if(err){
-                    callback("503", "", "");
+                    callback(503);
                     return;
                 }
 
-                callback("200", gw.ip, gw.bssid);
+                modelSensor.findOne({gateway_id:room}).sort({_ts:-1}).exec(function(err, sensor){
+                    if(err){
+                        callback(503);
+                        return;
+                    }
+
+                    
+                    callback(200, gw.ip, gw.bssid, 
+                        sensor.temp, sensor.hum, sensor.co, sensor.smoke,
+                        sensor.bat, sensor.fuzzy);
+                })
             }
         )
     });
@@ -469,7 +479,7 @@ function handleSocket(socket){
 
     socket.on('gateway_data', function(data){
         var now = (new Date()).getTime();
-        console.log(data);
+        // console.log(data);
 
         modelSensor.create({
                 gateway_id : socket.room,
@@ -477,6 +487,7 @@ function handleSocket(socket){
                 hum : data.hum,
                 co : data.co,
                 smoke : data.smoke,
+                bat : data.bat,
                 fuzzy : data.fuzzy,
                 _ts : now
             }, function(err, res){
