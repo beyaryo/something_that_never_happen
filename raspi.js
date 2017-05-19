@@ -141,12 +141,12 @@ xbeeAPI.on("frame_object", function(frame) {
  * Each gateway has different room depend on gateway id
  */
 function joinRoom(){
-    socketClient.emit("join_room", id);
-    console.log("Gateway join room " +id);
     var ip = (require( 'os' )).networkInterfaces()['wlan0'][0]['address'];
     wifi.getCurrentConnections(function(err, network){
         if(!err){
+            console.log("Gateway join room " +id);
             console.log(network);
+            socketClient.emit("gateway_join", id, ip, network[0].mac);
         }
     });
 }
