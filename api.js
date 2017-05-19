@@ -454,6 +454,8 @@ function handleSocket(socket){
         socket.room = room;
         console.log("Gateway join room ".concat(room));
 
+        var val = {ip: ip, bssid: bssid};
+
         modelGateway.findOneAndUpdate({gateway_id: room},
             {$set: {
                 ip: ip,
@@ -463,8 +465,11 @@ function handleSocket(socket){
                     console.log(err);
                 }else{
                     gw.owner.forEach(function(own){
-                        console.log(own);   
-                        // modelUser.findOne({email: own})
+                        modelUser.findOne({email: own}, function(err, user){
+                            if(err) return;
+                            
+                            sendNotification(JSON.stringify(val), "BSSID_GW", room, user.token_firebase);
+                        })
                     });
                 }
             }
