@@ -144,7 +144,7 @@ app.post("/api/register", function(req, res){
                         name: req.body.name,
                         phone : req.body.phone,
                         ektp_data: req.body.ektp_data,
-                        join_date: new Date()
+                        join_date: (new Date()).getTime()
                     }, function(err, user){
                         if(err){
                             res = errorServer(res);
