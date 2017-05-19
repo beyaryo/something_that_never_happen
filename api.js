@@ -380,7 +380,7 @@ app.post("/admin/addGateway", function(req, res){
 
         res.status(200);
         res.json({
-            message: "Congratulation, gateway added.!"
+            message: "Congratulation, gateway added .!"
         });
     });
 })
