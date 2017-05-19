@@ -28,14 +28,23 @@ xbeeAPI.on("frame_object", function(frame) {
     console.log(">>", frame);
 });
 
-// var Gpio = require('onoff').Gpio;
-// var buzzer = new Gpio(17, 'out');
+var Gpio = require('onoff').Gpio;
+var buzzer = new Gpio(17, 'out');
 
-// buzzer.writeSync(1);
+// buzz(3, 150);
 
-// setTimeout(function(){
-//   buzzer.writeSync(0);
-// }, 2000);
+// function buzz(loop, duration){
+//     if(loop > 0){
+//         buzzer.writeSync(1);
+        
+//         setTimeout(function(){
+//             buzzer.writeSync(0);
+//             setTimeout(function(){
+//                 buzz(loop-1, duration);
+//             }, 100);
+//         }, duration);
+//     }
+// }
  
 // var iv = setInterval(function(){
 // 	buzzer.writeSync(1);

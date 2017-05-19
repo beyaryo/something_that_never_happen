@@ -413,16 +413,6 @@ io.on('connection', function (socket) {
  */
 function handleSocket(socket){
 
-    socket.on('join_room', function(room){
-        if(socket.room){
-            socket.leave(socket.room);
-        }
-
-        socket.join(room);
-        socket.room = room;
-        console.log('Device ' +socket.id+ " join room '" +room+ "'");
-    });
-
     socket.on('client_join', function(room, callback){
         if(socket.room){
             socket.leave(socket.room);
@@ -502,13 +492,16 @@ function handleSocket(socket){
     });
 
     socket.on('open_door', function(gwId, doorId, token){
-        
-        io.sockets.in(socket.room).emit("door", doorId);
+        io.sockets.in(socket.room).emit("open_door", doorId);
     });
+
+    socket.on('ring_bell', function(){
+        io.sockets.in(socket.room).emit("ring_bell"); 
+    })
 
     socket.on('disconnect', function(){
         if(socket.room){
-            console.log('Device ' +socket.id+ " leave room '" +socket.room+ "'");
+            console.log("A device leave room ".concat(socket.room));
             socket.leave(socket.room);
         }
     });
