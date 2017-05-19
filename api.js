@@ -42,13 +42,12 @@ firebaseAdmin.initializeApp({
 var modelUser = require('./models/user');
 var modelGateway = require('./models/gateway');
 var modelSensor = require('./models/sensor');
+var modelDoor = require('./models/door');
 
 /**
  * Init global variable
  */
 var url = config.hostedServerUrl;
-var socketGw = null;
-var socketClient = null;
 
 /**
  * Connecting to database
@@ -366,6 +365,27 @@ app.get("/api/sensors", function(req, res){
 });
 
 /**
+ * Admin add gateway
+ */
+app.get("/admin/addGateway", function(req, res){
+    modelGateway.create({
+            gateway_id: req.gateway_id,
+            registered: false
+        }, function(err){
+            if(err){
+                res = errorServer(res);
+                return;
+            }
+
+            res.status(200);
+            res.json({
+                message: "Congratulation, gateway added.!"
+            });
+        }
+    );
+})
+
+/**
  * User connect
  */
 io.on('connection', function (socket) {
@@ -387,6 +407,27 @@ function handleSocket(socket){
         console.log('Device ' +socket.id+ " join room '" +room+ "'");
     });
 
+    socket.on('gateway_join', function(room, ip, bssid){
+        if(socket.room){
+            socket.leave(socket.room);
+        }
+
+        socket.join(room);
+        socket.room = room;
+        console.log('Device ' +socket.id+ " join room '" +room+ "'");
+
+        modelGateway.findOneAndUpdate({gateway_id: room},
+            {$set: {
+                ip: ip,
+                bssid: bssid
+            }}, function(err){
+                if(err){
+                    console.log(err);
+                }
+            }
+        );
+    });
+
     socket.on('gateway_data', function(data){
         var now = (new Date()).getTime();
         console.log(data);
@@ -397,6 +438,7 @@ function handleSocket(socket){
                 hum : data.hum,
                 co : data.co,
                 smoke : data.smoke,
+                fuzzy : data.fuzzy,
                 _ts : now
             }, function(err, res){
                 if(err){
@@ -410,7 +452,8 @@ function handleSocket(socket){
         io.sockets.in(socket.room).emit('sensor_value', data);
     });
 
-    socket.on('open_door', function(doorId){
+    socket.on('open_door', function(gwId, doorId, token){
+        
         io.sockets.in(socket.room).emit("door", doorId);
     });
 

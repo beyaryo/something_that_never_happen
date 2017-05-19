@@ -27,3 +27,23 @@ serialport.on("open", function() {
 xbeeAPI.on("frame_object", function(frame) {
     console.log(">>", frame);
 });
+
+// var Gpio = require('onoff').Gpio;
+// var buzzer = new Gpio(17, 'out');
+
+// buzzer.writeSync(1);
+
+// setTimeout(function(){
+//   buzzer.writeSync(0);
+// }, 2000);
+ 
+// var iv = setInterval(function(){
+// 	buzzer.writeSync(1);
+// }, 500);
+ 
+// // Stop blinking the LED and turn it off after 5 seconds.
+// setTimeout(function() {
+//     clearInterval(iv); // Stop blinking
+//     buzzer.writeSync(0);  // Turn LED off.
+//     buzzer.unexport();    // Unexport GPIO and free resources
+// }, 5000);

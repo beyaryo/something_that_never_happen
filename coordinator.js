@@ -1,6 +1,7 @@
 var util = require('util');
 var SerialPort = require('serialport');
 var xbee_api = require('xbee-api');
+var flag = 1;
  
 var C = xbee_api.constants;
  
@@ -25,6 +26,7 @@ serialport.on("open", function() {
   // };
  
   // serialport.write(xbeeAPI.buildFrame(frame_obj));
+  tesuto();
 });
 
 serialport.on("data", function(data){
@@ -33,13 +35,24 @@ serialport.on("data", function(data){
  
 // All frames parsed by the XBee will be emitted here 
 xbeeAPI.on("frame_object", function(frame) {
-    console.log(frame.data.toString('utf8'));
+  console.log("frame_type : " +frame.type);
+  if(frame.type == C.FRAME_TYPE.ZIGBEE_TRANSMIT_REQUEST){  
+    try{
+      console.log(frame.data.toString('utf8'));
+    }catch(err){
+      console.log("frame_object error : " +err);
+    }
+  }
 });
 
 xbeeAPI.on("error", function(error){
   console.log("Xbee error : " +error);
 });
 
-setInterval(function(){
-  serialport.write("Hello world!");
-}, 5000);
+function tesuto(){
+  setInterval(function(){
+    // serialport.write("" +flag);
+    // console.log("5 seconds");
+    // flag *= -1;
+  }, 5000);
+}

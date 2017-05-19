@@ -6,6 +6,7 @@ var sensorSchema = new mongoose.Schema({
     co : Number,
     hum : Number,
     smoke : Number,
+    fuzzy : Number,
     _ts : Number
 }, {collection: 'sensor'});
 

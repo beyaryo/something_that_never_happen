@@ -6,7 +6,7 @@ var userSchema = new mongoose.Schema({
     name : String,
     phone : {type : Number, unique : true},
     ektp_data : String, 
-    join_date : Date,
+    join_date : Number,
     token : String,
     token_firebase : String
 }, {collection: 'user'});
