@@ -367,22 +367,21 @@ app.get("/api/sensors", function(req, res){
  * Admin add gateway
  */
 app.post("/admin/addGateway", function(req, res){
-    var gw = new modelGateway({
-        gateway_id: req.body.gateway_id,
-        registered: false
-    });
+    modelGateway.create({
+            gateway_id: req.body.gateway_id,
+            registered: false
+        }, function(err){
+            if(err){
+                res = errorServer(res);
+                return;
+            }
 
-    gw.save(function(err){
-        if(err){
-            res = errorServer(res);
-            return;
+            res.status(200);
+            res.json({
+                message: "Congratulation, gateway added.!"
+            });
         }
-
-        res.status(200);
-        res.json({
-            message: "Congratulation, gateway added .!"
-        });
-    });
+    )
 })
 
 /**
@@ -414,7 +413,7 @@ function handleSocket(socket){
 
         socket.join(room);
         socket.room = room;
-        console.log('Device ' +socket.id+ " join room '" +room+ "'");
+        console.log("Gateway join room " +room+ "'");
 
         modelGateway.findOneAndUpdate({gateway_id: room},
             {$set: {
