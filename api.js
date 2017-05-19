@@ -75,6 +75,8 @@ var io = socketIO.listen(app.listen(app.get('port'), function(){
 
 /**
  * User login
+ * Require : email, pass, token_firebase
+ * Return : token, gateways
  */
 app.post("/api/login", function(req, res){
     var email = req.body.email;                 // get email from form
@@ -127,6 +129,8 @@ app.post("/api/login", function(req, res){
 
 /**
  * Register new user
+ * Require : email, pass, name, phone
+ * Return : <status>
  */
 app.post("/api/register", function(req, res){
 
@@ -170,6 +174,8 @@ app.post("/api/register", function(req, res){
 
 /**
  * Check if email isn't registered yet
+ * Require : email
+ * Return : <status>
  */
 app.post("/api/checkEmail", function(req, res){
     modelUser.findOne({email: req.body.email}, function(err, user){
@@ -182,6 +188,8 @@ app.post("/api/checkEmail", function(req, res){
 
 /**
  * Check if phone number isn't registered yet
+ * Require : phone
+ * Return : <status>
  */
 app.post("/api/checkPhone", function(req, res){
     modelUser.findOne({phone: req.body.phone, function(err, user){
@@ -194,6 +202,8 @@ app.post("/api/checkPhone", function(req, res){
 
 /**
  * Add gateway
+ * Require : token, gateway_id, name, lat, lng, address, email
+ * Return : <status>
  */
 app.post("/api/registerGateway", function(req, res){
 
@@ -230,9 +240,9 @@ app.post("/api/registerGateway", function(req, res){
                     res.json({message: "Service unavaliable"});
                     return; 
                 }
+                res.status(200);
 
                 if(!gw){
-                    res.status(200);
                     res.json({
                         message: "Gateway serial number unidentified or it has been registered",
                         registered : false
@@ -240,7 +250,6 @@ app.post("/api/registerGateway", function(req, res){
                     return;
                 }
 
-                res.status(200);
                 res.json({
                     message: "Your gateway registered successfully",
                     registered: true
@@ -252,6 +261,8 @@ app.post("/api/registerGateway", function(req, res){
 
 /**
  * Add user to monitor spesific gateway
+ * Require : token, email, gateway_id
+ * Return : <status>
  */
 app.post("/api/allowUser", function(req, res){
 
@@ -308,14 +319,14 @@ app.post("/api/allowUser", function(req, res){
 
                     if(!gw){
                         res.json({
-                            message: "User already allowed to monitor this gateway",
+                            message: "User already allowed to access this gateway",
                             allowed: false
                         });
                         return;
                     }
 
                     res.json({
-                        message: req.body.email.concat(" allowed to monitor gateway"),
+                        message: req.body.email.concat(" gain access to gateway"),
                         allowed: true
                     });
                 }
@@ -326,6 +337,8 @@ app.post("/api/allowUser", function(req, res){
 
 /**
  * Request user profile
+ * Require : token
+ * Return : user
  */
 app.post("/api/me", function(req, res){
     modelUser.find({token: req.body.token}, {_id: 0, __v: 0, token: 0, token_firebase: 0}, function(err, user){
@@ -343,6 +356,7 @@ app.post("/api/me", function(req, res){
 
 /**
  * Get all users
+ * Return : users
  */
 app.get("/api/users", function(req, res){
     modelUser.find({}, function(err, users){
@@ -354,6 +368,7 @@ app.get("/api/users", function(req, res){
 
 /**
  * Get sensor values
+ * Return : <count>
  */
 app.get("/api/sensors", function(req, res){
     modelSensor.count({}, function(err, values){
@@ -365,6 +380,8 @@ app.get("/api/sensors", function(req, res){
 
 /**
  * Admin add gateway
+ * Require : gateway_id
+ * Return : <status>
  */
 app.post("/admin/addGateway", function(req, res){
     modelGateway.create({
@@ -378,8 +395,7 @@ app.post("/admin/addGateway", function(req, res){
 
             res.status(200);
             res.json({
-                message: req.body.gateway_id
-                // message: "Congratulation, gateway added.!"
+                message: "Congratulation, gateway ".concat(req.body.gateway_id, " added!")
             });
         }
     )
@@ -407,6 +423,28 @@ function handleSocket(socket){
         console.log('Device ' +socket.id+ " join room '" +room+ "'");
     });
 
+    socket.on('client_join', function(room, callback){
+        if(socket.room){
+            socket.leave(socket.room);
+        }
+
+        socket.join(room);
+        socket.room = room;
+        console.log("Client join room ".concat(room));
+
+        modelGateway.findOne({
+                gateway_id: room
+            }, function(err, gw){
+                if(err){
+                    callback(503, "", "");
+                    return;
+                }
+
+                callback(200, gw.ip, gw.bssid);
+            }
+        )
+    });
+
     socket.on('gateway_join', function(room, ip, bssid){
         if(socket.room){
             socket.leave(socket.room);
@@ -414,15 +452,20 @@ function handleSocket(socket){
 
         socket.join(room);
         socket.room = room;
-        console.log("Gateway join room " +room+ "'");
+        console.log("Gateway join room ".concat(room));
 
         modelGateway.findOneAndUpdate({gateway_id: room},
             {$set: {
                 ip: ip,
                 bssid: bssid
-            }}, function(err){
+            }}, function(err, gw){
                 if(err){
                     console.log(err);
+                }else{
+                    gw.owner.forEach(function(own){
+                        console.log(own);   
+                        // modelUser.findOne({email: own})
+                    });
                 }
             }
         );
@@ -574,8 +617,8 @@ function errorCredential(res){
  * Timer for request itself to prevent server from sleep
  */
 setInterval(function(){
-    request(url);
-    console.log("Requesting self again in 20 minutes");
+    // request(url);
+    // console.log("Requesting self again in 20 minutes");
 }, 1200000);
 
 /**
@@ -628,14 +671,11 @@ setInterval(function(){
                     modelUser.findOne({email : email}, {_id : 0, token_firebase : 1}, function(err, user){
 
                         if(user.token_firebase){
-                            // console.log("\nSend to : " +user.token_firebase);
-                            // console.log("Data : " +JSON.stringify(val)+ "");
                             var gateway_id = val._id;
                             val.timestamp = now;
                             delete val._id;
 
                             sendNotification(JSON.stringify(val), "AVG_DATA", gateway_id, user.token_firebase);
-                            // sendNotification(JSON.stringify(val), "AVG_DATA", user.token_firebase);
                         }
                     });
                 });
