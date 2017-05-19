@@ -468,7 +468,8 @@ function handleSocket(socket){
                         modelUser.findOne({email: own}, function(err, user){
                             if(err) return;
                             
-                            sendNotification(JSON.stringify(val), "BSSID_GW", room, user.token_firebase);
+                            if(user.token_firebase)
+                                sendNotification(JSON.stringify(val), "BSSID_GW", room, user.token_firebase);
                         })
                     });
                 }
