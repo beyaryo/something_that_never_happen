@@ -368,7 +368,7 @@ app.get("/api/sensors", function(req, res){
  * Admin add gateway
  */
 app.post("/admin/addGateway", function(req, res){
-    modelGateway.insert({
+    modelGateway.save({
             gateway_id: req.gateway_id,
             registered: false
         }, function(err){
