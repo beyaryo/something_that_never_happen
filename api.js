@@ -368,21 +368,22 @@ app.get("/api/sensors", function(req, res){
  * Admin add gateway
  */
 app.post("/admin/addGateway", function(req, res){
-    modelGateway.save({
-            gateway_id: req.gateway_id,
-            registered: false
-        }, function(err){
-            if(err){
-                res = errorServer(res);
-                return;
-            }
+    var gw = new modelGateway({
+        gateway_id: req.gateway_id,
+        registered: false
+    });
 
-            res.status(200);
-            res.json({
-                message: "Congratulation, gateway added.!"
-            });
+    gw.save(function(err){
+        if(err){
+            res = errorServer(res);
+            return;
         }
-    );
+
+        res.status(200);
+        res.json({
+            message: "Congratulation, gateway added.!"
+        });
+    });
 })
 
 /**
