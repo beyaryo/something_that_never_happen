@@ -90,6 +90,14 @@ socketAsClient.on("connect", function(){
 });
 
 /**
+ * When socket disconnected from server
+ */
+socketAsClient.on("disconnect", function(){
+    printDash();
+    console.log("Gateway disconnected");
+})
+
+/**
  * When user open spesific door
  */
 socketAsClient.on("open_door", function(doorSerial){
@@ -152,7 +160,7 @@ var serialport = new SerialPort("/dev/ttyUSB0", {
  * When serial port open
  */
 serialport.on("open", function() {
-    serialport.write("1#9e0q;");
+    serialport.write("1#ed01;");
 });
 
 /**
@@ -178,7 +186,7 @@ xbeeAPI.on("frame_object", function(frame) {
             /**
              * Get data from frame
              */
-            var value = frame.data.toString('utf8').split("#");
+            var value = (frame.data.toString('utf8')).split("#");
 
             /**
              * Split frame to receive sensor value
@@ -208,6 +216,18 @@ xbeeAPI.on("frame_object", function(frame) {
              * Emit sensor value to server
              */
             socketAsClient.emit("gateway_data", {
+                temp: temp,
+                hum: hum,
+                co: co,
+                smoke: smoke,
+                bat: bat,
+                fuzzy: prob
+            });
+
+            /**
+             * Emit sensor value to connected client in same network
+             */
+            socketAsServer.emit("gateway_data", {
                 temp: temp,
                 hum: hum,
                 co: co,
@@ -260,7 +280,7 @@ function buzz(loop, duration){
     }
 }
 
-buzz(2, 500);
+// buzz(2, 500);
 /**==========================================================================================================*/
 /**========================================== End of Global Usage ===========================================*/
 /**==========================================================================================================*/

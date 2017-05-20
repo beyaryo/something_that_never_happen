@@ -1,4 +1,3 @@
-var util = require('util');
 var SerialPort = require('serialport');
 var xbee_api = require('xbee-api');
 var flag = 1;
@@ -9,24 +8,26 @@ var xbeeAPI = new xbee_api.XBeeAPI({
   api_mode: 2
 });
  
-var serialport = new SerialPort("COM16", {
+var serialport = new SerialPort("/dev/ttyUSB0", {
   baudrate: 115200,
   parser: xbeeAPI.rawParser()
 });
  
 serialport.on("open", function() {
-  // var frame_obj = { // AT Request to be sent to  
-  //   // type: C.FRAME_TYPE.AT_COMMAND,
-  //   type: 0x00,
-  //   id: 0x01,
-  //   command: "NI",
-  //   commandParameter: [],
-  //   options: 0x00, // optional, 0x00 is default 
-  //   data: "TxData0A" // Can either be string or byte array. 
-  // };
+  var frame_obj = { // AT Request to be sent to  
+    // type: C.FRAME_TYPE.AT_COMMAND,
+    type: 0x00,
+    id: 0x01,
+    command: "NI",
+    commandParameter: [],
+    options: 0x00, // optional, 0x00 is default 
+    data: "TxData0A" // Can either be string or byte array. 
+  };
  
   // serialport.write(xbeeAPI.buildFrame(frame_obj));
-  tesuto();
+  serialport.write("1#ed01;");
+  console.log("Send 1#ed01;");
+  // tesuto();
 });
 
 serialport.on("data", function(data){
@@ -51,8 +52,13 @@ xbeeAPI.on("error", function(error){
 
 function tesuto(){
   setInterval(function(){
-    // serialport.write("" +flag);
-    // console.log("5 seconds");
-    // flag *= -1;
+    var data = flag+ "#ed01;";
+    serialport.write(data);
+    console.log("5 seconds for " +data);
+    if(flag == 1){
+      flag = 0;
+    }else{
+      flag = 1;
+    }
   }, 5000);
 }

@@ -507,13 +507,13 @@ function handleSocket(socket){
         io.sockets.in(socket.room).emit('sensor_value', data);
     });
 
-    socket.on('open_door', function(gwId, doorId, token){
+    socket.on('open_door', function(doorId, token){
         io.sockets.in(socket.room).emit("open_door", doorId);
     });
 
-    socket.on('ring_bell', function(){
+    socket.on('ring_bell', function(token){
         io.sockets.in(socket.room).emit("ring_bell"); 
-    })
+    });
 
     socket.on('disconnect', function(){
         if(socket.room){

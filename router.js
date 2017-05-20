@@ -28,8 +28,9 @@ xbeeAPI.on("frame_object", function(frame) {
     console.log(">>", frame);
 });
 
-var Gpio = require('onoff').Gpio;
-var buzzer = new Gpio(17, 'out');
+// var Gpio = require('onoff').Gpio;
+// var buzzer = new Gpio(17, 'out');
+// buzzer.writeSync(0);
 
 // buzz(3, 150);
 
