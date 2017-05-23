@@ -260,6 +260,43 @@ app.post("/api/registerGateway", function(req, res){
 });
 
 /**
+ * Get gateway info
+ * Accessed after register new gateway
+ * Require : token, gateway_id
+ * Return : gateway
+ */
+app.post("/api/gatewayInfo", function(req, res){
+
+    /**
+     * Credential validation
+     */
+    modelUser.findOne({token : req.body.token}, function(err, user){
+        if(err){
+            res = errorServer(res);
+            return;
+        }
+
+        if(!user){
+            res = errorCredential(res);
+            return;
+        }
+
+        modelGateway.findOne({gateway_id : req.body.gateway_id}, 
+            {_id:0}, 
+            function(err, gw){
+                if(err){
+                    res = errorServer(res);
+                    return;
+                }
+
+                res.status(200);
+                res.json(gw);
+            }
+        );
+    });
+});
+
+/**
  * Add user to monitor spesific gateway
  * Require : token, email, gateway_id
  * Return : <status>

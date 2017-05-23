@@ -1,3 +1,5 @@
+var tempCache = 0, humCache = 0, coCache = 0, smokeCache = 0, batCache = 0, fuzzyCache = 0;
+
 /**==========================================================================================================*/
 /**============================================= As Server Side =============================================*/
 /**==========================================================================================================*/
@@ -27,7 +29,17 @@ socketAsServer.on('connection', function(socket){
 });
 
 function handleSocketAsServer(socket){
-    socket.on('buzz', function(){
+
+    socket.on('client_join', function(room, callback){
+        callback(tempCache, humCache, coCache, smokeCache,
+            batCache, fuzzyCache);
+    });
+
+    socket.on('open_door', function(doorSerial){
+        openDoor(doorSerial);
+    });
+
+    socket.on('ring_bell', function(){
         ringBell();
     });
 
@@ -37,14 +49,6 @@ function handleSocketAsServer(socket){
         console.log("An android client disconnected !");
         printCountConnectedDevice();
     });
-
-    socket.on('open_door', function(doorSerial){
-        openDoor(doorSerial);
-    });
-
-    socket.on('ring_bell', function(){
-        ringBell();
-    })
 }
 
 function printCountConnectedDevice(){
@@ -191,24 +195,24 @@ xbeeAPI.on("frame_object", function(frame) {
             /**
              * Split frame to receive sensor value
              */
-            var temp = getValue(value[4]);
-            var hum = getValue(value[5]);
-            var co = getValue(value[6]);
-            var smoke = getValue(value[7]);
-            var bat = getValue(value[8]);
-            var prob = getValue(value[9]);
+            tempCache = getValue(value[4]);
+            humCache = getValue(value[5]);
+            coCache = getValue(value[6]);
+            smokeCache = getValue(value[7]);
+            batCache = getValue(value[8]);
+            fuzzyCache = getValue(value[9]);
             
             console.log("Data received from waspmote.");
-            console.log("Temp : " +temp);
-            console.log("Hum : " +hum);
-            console.log("CO : " +co);
-            console.log("Smoke : " +smoke);
-            console.log("Bat : " +bat);
-            console.log("Fuzzy : " +prob);
+            console.log("Temp : " +tempCache);
+            console.log("Hum : " +humCache);
+            console.log("CO : " +coCache);
+            console.log("Smoke : " +smokeCache);
+            console.log("Bat : " +batCache);
+            console.log("Fuzzy : " +fuzzyCache);
             
-            if(parseInt(prob) > 40 && parseInt(prob) <= 63){
+            if(parseInt(fuzzyCache) > 40 && parseInt(fuzzyCache) <= 63){
                 buzz(3, 300);
-            }else if(parseInt(prob) > 63){
+            }else if(parseInt(fuzzyCache) > 63){
                 buzz(7, 300);
             }
 
@@ -216,24 +220,24 @@ xbeeAPI.on("frame_object", function(frame) {
              * Emit sensor value to server
              */
             socketAsClient.emit("gateway_data", {
-                temp: temp,
-                hum: hum,
-                co: co,
-                smoke: smoke,
-                bat: bat,
-                fuzzy: prob
+                temp: tempCache,
+                hum: humCache,
+                co: coCache,
+                smoke: smokeCache,
+                bat: batCache,
+                fuzzy: fuzzyCache
             });
 
             /**
              * Emit sensor value to connected client in same network
              */
-            socketAsServer.emit("gateway_data", {
-                temp: temp,
-                hum: hum,
-                co: co,
-                smoke: smoke,
-                bat: bat,
-                fuzzy: prob
+            socketAsServer.emit("sensor_value", {
+                temp: tempCache,
+                hum: humCache,
+                co: coCache,
+                smoke: smokeCache,
+                bat: batCache,
+                fuzzy: fuzzyCache
             });
         }catch(err){
             console.log("frame_object error : " +err);
