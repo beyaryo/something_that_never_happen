@@ -7,8 +7,8 @@ var gatewaySchema = new mongoose.Schema({
     lng : Number,
     address : String,
     owner : [{
-        email: String,
-        name: String
+        email: {type: String, "default": ""},
+        name: {type: String, "default": ""}
     }],
     ip : String,
     bssid : String,
