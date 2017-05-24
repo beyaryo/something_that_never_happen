@@ -90,6 +90,7 @@ app.post("/api/login", function(req, res){
      */
     modelUser.findOne({email: email, password: pass}, function(err, user){
         if(err){
+            console.log(err);
             res = errorServer(res);
             return;
         }
@@ -103,6 +104,7 @@ app.post("/api/login", function(req, res){
              */
             user.save(function(err){
                 if(err){
+                    console.log(err);
                     res = errorServer(res);
                     return;
                 }
@@ -112,6 +114,7 @@ app.post("/api/login", function(req, res){
                     {_id:0}, 
                     function(err, gws){
                         if(err){
+                            console.log(err);
                             res = errorServer(res);
                             return;
                         }
@@ -150,6 +153,7 @@ app.post("/api/register", function(req, res){
                                 join_date: (new Date()).getTime()},
                             function(err, user){
                                 if(err){
+                                    console.log(err);
                                     res = errorServer(res);
                                     return;
                                 }else{
@@ -386,6 +390,7 @@ app.post("/api/registerDoor", function(req, res){
     modelUser.findOne({token: req.body.token},
         function(err, user){
             if(err){
+                console.log(err);
                 res = errorServer(res);
                 return;
             }
@@ -403,6 +408,7 @@ app.post("/api/registerDoor", function(req, res){
                     }
                 }, function(err, gw){
                     if(err){
+                        console.log(err);
                         res = errorServer(res);
                         return;
                     }
@@ -419,7 +425,8 @@ app.post("/api/registerDoor", function(req, res){
                                     }
                                 }
                             }, function(err, gw){
-                                if(err){
+                                if(err){   
+                                    console.log(err);
                                     res = errorServer(res);
                                     return;
                                 }
@@ -448,38 +455,6 @@ app.post("/api/registerDoor", function(req, res){
                     }
                 }
             )
-
-            // modelGateway.findOneAndUpdate({
-            //     gateway_id: req.body.gateway_id,
-            //     registered: true,
-            //     door: {id: {$ne: req.body.door_id}}},{
-            //         $push: {
-            //             door: [
-            //                 {id: req.body.door_id, name: req.body.door_name}
-            //             ]
-            //         }
-            //     },
-            //     function(err, gw){
-            //         if(err){
-            //             res = errorServer(res);
-            //             return;
-            //         }
-
-            //         if(!gw){
-            //             res.status(200);
-            //             res.json({
-            //                 message: "Door has been registered",
-            //                 registered: false
-            //             });
-            //         }else{
-            //             res.status(200);
-            //             res.json({
-            //                 message: "Door ".concat(req.body.door_name, " succesfully registered"),
-            //                 registered: true
-            //             })
-            //         }
-            //     }
-            // );
         }
     )
 })
@@ -492,6 +467,7 @@ app.post("/api/registerDoor", function(req, res){
 app.post("/api/me", function(req, res){
     modelUser.find({token: req.body.token}, {_id: 0, __v: 0, token: 0, token_firebase: 0}, function(err, user){
         if(err){
+            console.log(err);
             res = errorServer(res);
             return;
         }
@@ -538,6 +514,7 @@ app.post("/admin/addGateway", function(req, res){
             registered: false
         }, function(err){
             if(err){
+                console.log(err);
                 res = errorServer(res);
                 return;
             }
@@ -575,12 +552,14 @@ function handleSocket(socket){
                 gateway_id: room
             }, function(err, gw){
                 if(err){
+                    console.log(err);
                     callback(503);
                     return;
                 }
 
                 modelSensor.findOne({gateway_id:room}).sort({_ts:-1}).exec(function(err, sensor){
                     if(err){
+                        console.log(err);
                         callback(503);
                         return;
                     }
@@ -620,7 +599,10 @@ function handleSocket(socket){
                 }else{
                     gw.owner.forEach(function(own){
                         modelUser.findOne({email: own}, function(err, user){
-                            if(err) return;
+                            if(err) {
+                                console.log(err);
+                                return;
+                            }
                             
                             if(user.token_firebase)
                                 sendNotification(JSON.stringify(val), "BSSID_GW", room, user.token_firebase);
@@ -646,7 +628,7 @@ function handleSocket(socket){
                 _ts : now
             }, function(err, res){
                 if(err){
-                    // console.log(err);
+                    console.log(err);
                 }else{
                     // console.log(res._ts);
                 }
