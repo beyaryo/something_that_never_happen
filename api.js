@@ -343,12 +343,69 @@ app.post("/api/allowUser", function(req, res){
             }
 
             if(!user){
-            res.json({
+                res.status(200);
+                res.json({
                     message: "Email isn\'t registered",
                     allowed: false
                 });
                 return; 
             }
+
+            modelGateway.findOne({
+                    gateway_id: req.body.gateway_id,
+                    registered: true,
+                    owner: {$elemMatch: {email: req.body.email}}
+                },
+                function(err, gw){
+                    if(err){
+                        console.log(err);
+                        res = errorServer(res);
+                        return;
+                    }
+
+                    if(!gw){
+                        modelGateway.findOneAndUpdate({
+                                gateway_id: req.body.gateway_id,
+                                registered: true
+                            },{
+                                $push: {
+                                    owner: {
+                                        email: user.email,
+                                        name: user.name
+                                    }
+                                }
+                            },
+                            function(err, done){
+                                if(err){
+                                    console.log(err);
+                                    res = errorServer(res);
+                                    return;
+                                }
+
+                                res.status(200);
+
+                                if(done){
+                                    res.json({
+                                        message: user.email.concat(" gain access to gateway"),
+                                        allowed: true
+                                    });
+                                }else{
+                                    res.json({
+                                        message: "Something went wrong, please try again later!",
+                                        allowed: false
+                                    });
+                                }
+                            }
+                        )
+                    }else{
+                        res.status(200);
+                        res.json({
+                            message: "User already allowed to access this gateway",
+                            allowed: false
+                        })
+                    }
+                }
+            )
 
             // Find gateway with spesific id and already registered
             // w/o pushed email in owner array
@@ -375,10 +432,7 @@ app.post("/api/allowUser", function(req, res){
             //             return;
             //         }
 
-            //         res.json({
-            //             message: req.body.email.concat(" gain access to gateway"),
-            //             allowed: true
-            //         });
+                    
             //     }
             // );
         }); 
