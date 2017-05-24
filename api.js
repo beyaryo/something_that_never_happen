@@ -245,14 +245,13 @@ app.post("/api/registerGateway", function(req, res){
                 lat: req.body.lat,
                 lng: req.body.lng,
                 address: req.body.address,
-                $push: {
-                    owner: {
-                        email: user.email,
-                        name: user.name
-                    }
-                },
-                registered: true
-            }}, function(err, gw){
+                registered: true}, 
+            $push: {
+                owner: {
+                    email: user.email,
+                    name: user.name
+                }}
+            }, function(err, gw){
                 if(err){
                     res.status(503);
                     res.json({message: "Service unavaliable"});
