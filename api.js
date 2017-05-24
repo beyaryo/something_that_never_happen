@@ -395,37 +395,56 @@ app.post("/api/registerDoor", function(req, res){
                 return;
             }
 
-            modelGateway.findOneAndUpdate({
-                gateway_id: req.body.gateway_id,
-                registered: true,
-                door: {id: {$ne: req.body.door_id}}},{
-                    $push: {
-                        door: [
-                            {id: req.body.door_id, name: req.body.door_name}
-                        ]
+            modelGateway.findOne({
+                    gateway_id: req.body.gateway_id,
+                    registered: true,
+                    door: {
+                        $elemMatch: {
+                            id: {$ne: req.body.door_id}
+                        }
                     }
-                },
-                function(err, gw){
+                }, function(err, gw){
                     if(err){
                         res = errorServer(res);
                         return;
                     }
 
-                    if(!gw){
-                        res.status(200);
-                        res.json({
-                            message: "Door has been registered",
-                            registered: false
-                        });
-                    }else{
-                        res.status(200);
-                        res.json({
-                            message: "Door ".concat(req.body.door_name, " succesfully registered"),
-                            registered: true
-                        })
-                    }
+                    res.status(200);
+                    res.json(gw);
                 }
-            );
+            )
+
+            // modelGateway.findOneAndUpdate({
+            //     gateway_id: req.body.gateway_id,
+            //     registered: true,
+            //     door: {id: {$ne: req.body.door_id}}},{
+            //         $push: {
+            //             door: [
+            //                 {id: req.body.door_id, name: req.body.door_name}
+            //             ]
+            //         }
+            //     },
+            //     function(err, gw){
+            //         if(err){
+            //             res = errorServer(res);
+            //             return;
+            //         }
+
+            //         if(!gw){
+            //             res.status(200);
+            //             res.json({
+            //                 message: "Door has been registered",
+            //                 registered: false
+            //             });
+            //         }else{
+            //             res.status(200);
+            //             res.json({
+            //                 message: "Door ".concat(req.body.door_name, " succesfully registered"),
+            //                 registered: true
+            //             })
+            //         }
+            //     }
+            // );
         }
     )
 })
