@@ -398,8 +398,13 @@ app.post("/api/registerDoor", function(req, res){
             modelGateway.findOneAndUpdate({
                 gateway_id: req.body.gateway_id,
                 registered: true,
-                door: {id: {$ne: req.body.door_id}}},
-                {$push: {door: {id: req.body.door_id, name: req.body.door_name}}},
+                door: {id: {$ne: req.body.door_id}}},{
+                    $push: {
+                        door: [
+                            {id: req.body.door_id, name: req.body.door_name}
+                        ]
+                    }
+                },
                 function(err, gw){
                     if(err){
                         res = errorServer(res);
