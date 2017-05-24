@@ -110,7 +110,7 @@ app.post("/api/login", function(req, res){
                 }
 
 
-                modelGateway.find({owner: {$elemMatch: {email: req.body.email}}}, 
+                modelGateway.find({owner: email}, 
                     {_id:0}, 
                     function(err, gws){
                         if(err){
@@ -245,10 +245,7 @@ app.post("/api/registerGateway", function(req, res){
                 lat: req.body.lat,
                 lng: req.body.lng,
                 address: req.body.address,
-                owner: {
-                    email: user.email,
-                    name: user.name
-                },
+                owner: [req.body.email],
                 registered: true
             }}, function(err, gw){
                 if(err){
@@ -351,35 +348,35 @@ app.post("/api/allowUser", function(req, res){
 
             // Find gateway with spesific id and already registered
             // w/o pushed email in owner array
-            // modelGateway.findOneAndUpdate({
-            //         gateway_id: req.body.gateway_id, 
-            //         registered: true, 
-            //         owner: {$ne: req.body.email}
-            //     }, 
-            //     {$push: {owner: req.body.email}},
-            //     function(err, gw){
-            //         if(err){
-            //             res.status(503);
-            //             res.json({message: "Service unavaliable"});
-            //             return; 
-            //         }
+            modelGateway.findOneAndUpdate({
+                    gateway_id: req.body.gateway_id, 
+                    registered: true, 
+                    owner: {$ne: req.body.email}
+                }, 
+                {$push: {owner: req.body.email}},
+                function(err, gw){
+                    if(err){
+                        res.status(503);
+                        res.json({message: "Service unavaliable"});
+                        return; 
+                    }
                 
-            //         res.status(200);
+                    res.status(200);
 
-            //         if(!gw){
-            //             res.json({
-            //                 message: "User already allowed to access this gateway",
-            //                 allowed: false
-            //             });
-            //             return;
-            //         }
+                    if(!gw){
+                        res.json({
+                            message: "User already allowed to access this gateway",
+                            allowed: false
+                        });
+                        return;
+                    }
 
-            //         res.json({
-            //             message: req.body.email.concat(" gain access to gateway"),
-            //             allowed: true
-            //         });
-            //     }
-            // );
+                    res.json({
+                        message: req.body.email.concat(" gain access to gateway"),
+                        allowed: true
+                    });
+                }
+            );
         }); 
     });
 });
@@ -601,7 +598,7 @@ function handleSocket(socket){
                     console.log(err);
                 }else{
                     gw.owner.forEach(function(own){
-                        modelUser.findOne({email: own.email}, function(err, user){
+                        modelUser.findOne({email: own}, function(err, user){
                             if(err) {
                                 console.log(err);
                                 return;
@@ -812,12 +809,12 @@ setInterval(function(){
             modelGateway.findOne({gateway_id : val._id}, function(err, gw){
                 if(!gw) return;
               
-                gw.owner.forEach(function(own){
+                gw.owner.forEach(function(email){
 
                     /**
                      * Get user firebase token for every gateway's owner
                      */
-                    modelUser.findOne({email : own.email}, {_id : 0, token_firebase : 1}, function(err, user){
+                    modelUser.findOne({email : email}, {_id : 0, token_firebase : 1}, function(err, user){
 
                         if(user.token_firebase){
                             var gateway_id = val._id;
