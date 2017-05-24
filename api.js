@@ -134,29 +134,38 @@ app.post("/api/login", function(req, res){
  */
 app.post("/api/register", function(req, res){
 
-    /**
-     * Find if email has been registered
-     * If email already registered, return 400
-     */
+    // Find if email has been registered
+    // If email already registered, return 400
     modelUser.findOne(
         {email: req.body.email},
         function(err, user){
             if(!user){
-                modelUser.create({
-                        email: req.body.email,
-                        password: req.body.pass,
-                        name: req.body.name,
-                        phone : req.body.phone,
-                        join_date: (new Date()).getTime()
-                    }, function(err, user){
-                        if(err){
-                            res = errorServer(res);
-                            return;
+                modelUser.findOne({phone: req.body.phone},
+                    function(err,user){
+                        if(!user){modelUser.create({
+                                email: req.body.email,
+                                password: req.body.pass,
+                                name: req.body.name,
+                                phone : req.body.phone,
+                                join_date: (new Date()).getTime()},
+                            function(err, user){
+                                if(err){
+                                    res = errorServer(res);
+                                    return;
+                                }else{
+                                    res.status(200);
+                                    res.json({
+                                        message: "Congratulation! Your account registered successfully",
+                                        registered: true
+                                    });
+                                    }
+                                }
+                            );
                         }else{
                             res.status(200);
                             res.json({
-                                message: "Congratulation! Your account registered successfully",
-                                registered: true
+                                message: "Account with phone ".concat(req.body.phone, " already registered"),
+                                registered: false
                             });
                         }
                     }
@@ -317,10 +326,8 @@ app.post("/api/allowUser", function(req, res){
             return;
         }
 
-        /**
-         * Check if email is registered
-         * if not, return message not registered
-         */
+        // Check if email is registered
+        // if not, return message not registered
         modelUser.findOne({email: req.body.email}, function(err, user){
             if(err){
                 res = errorServer(res);
@@ -335,10 +342,8 @@ app.post("/api/allowUser", function(req, res){
                 return; 
             }
 
-            /**
-             * Find gateway with spesific id and already registered
-             * w/o pushed email in owner array
-             */
+            // Find gateway with spesific id and already registered
+            // w/o pushed email in owner array
             modelGateway.findOneAndUpdate({
                     gateway_id: req.body.gateway_id, 
                     registered: true, 
@@ -371,6 +376,54 @@ app.post("/api/allowUser", function(req, res){
         }); 
     });
 });
+
+/**
+ * Add door to spesific gateway
+ * Require : token, gateway_id, door_id, door_name
+ * Return : <status>
+ */
+app.post("/api/registerDoor", function(req, res){
+    modelUser.findOne({token: req.body.token},
+        function(err, user){
+            if(err){
+                res = errorServer(res);
+                return;
+            }
+
+            if(!user){
+                res = errorCredential(res);
+                return;
+            }
+
+            modelGateway.findOneAndUpdate({
+                gateway_id: req.body.gateway_id,
+                registered: true,
+                door: {id: {$ne: req.body.door_id}}},
+                {$push: {door: {id: req.body.door_id, name: req.body.door_name}}},
+                function(err, gw){
+                    if(err){
+                        res = errorServer(res);
+                        return;
+                    }
+
+                    if(!gw){
+                        res.status(200);
+                        res.json({
+                            message: "Door has been registered",
+                            registered: false
+                        });
+                    }else{
+                        res.status(200);
+                        res.json({
+                            message: "Door ".concat(req.body.door_name, " succesfully registered"),
+                            registered: true
+                        })
+                    }
+                }
+            );
+        }
+    )
+})
 
 /**
  * Request user profile

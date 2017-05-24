@@ -9,7 +9,11 @@ var gatewaySchema = new mongoose.Schema({
     owner : {type : Array, "default" : []},
     ip : String,
     bssid : String,
-    registered : {type : Boolean, "default" : false}
+    registered : {type : Boolean, "default" : false},
+    door : [{
+        id : String,
+        name : String
+    }]
 }, {collection: 'gateway'});
 
 module.exports = mongoose.model('gateway', gatewaySchema);
