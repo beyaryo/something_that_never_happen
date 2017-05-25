@@ -533,6 +533,9 @@ app.post("/api/deleteLock", function(req, res){
                     registered: true,
                     owner: {
                         $elemMatch: {email: user.email}
+                    },
+                    lock: {
+                        $elemMatch: {id: req.body.id}
                     }
                 },{
                     $pull: {
