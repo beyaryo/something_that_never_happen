@@ -516,6 +516,7 @@ app.post("/api/deleteLock", function(req, res){
     modelUser.findOne({token: req.body.token},
         function(err, user){
             if(err){
+                console.log(err);
                 res = errorServer(res);
                 return;
             }
@@ -539,6 +540,7 @@ app.post("/api/deleteLock", function(req, res){
                     }
                 }, function(err, gw){
                     if(err){
+                        console.log(err);
                         res = errorServer(res);
                         return;
                     }
