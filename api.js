@@ -425,7 +425,7 @@ app.post("/api/allowUser", function(req, res){
  * Require : token, gateway_id, id, name
  * Return : <status>
  */
-app.post("/api/registerLock", function(req, res){
+app.post("/api/pairLock", function(req, res){
 
     // Credential validation
     modelUser.findOne({token: req.body.token},
@@ -441,12 +441,12 @@ app.post("/api/registerLock", function(req, res){
                 return;
             }
 
-            // Find gateway with spesific id and has been registered
+            // Find from all gateway 
             // which contain lock with spesific lock id
             // If found, return false
             modelGateway.findOne({
-                    gateway_id: req.body.gateway_id,
-                    registered: true,
+                    // gateway_id: req.body.gateway_id,
+                    // registered: true,
                     lock: {
                         $elemMatch: {id: req.body.id}
                     }
@@ -463,7 +463,8 @@ app.post("/api/registerLock", function(req, res){
                         modelGateway.findOneAndUpdate({
                                 gateway_id: req.body.gateway_id,
                                 registered: true
-                            }, {
+                            }, 
+                            {
                                 $push: {
                                     lock: {
                                         id: req.body.id,
@@ -480,14 +481,14 @@ app.post("/api/registerLock", function(req, res){
                                 if(gw){
                                     res.status(200);
                                     res.json({
-                                        message: "Lock ".concat(req.body.name, " succesfully registered"),
-                                        registered: true
+                                        message: "Lock ".concat(req.body.name, " succesfully paired"),
+                                        paired: true
                                     });
                                 }else{
                                     res.status(200);
                                     res.json({
                                         message: "Gateway not found",
-                                        registered: false
+                                        paired: false
                                     });
                                 }
                             }
@@ -495,8 +496,8 @@ app.post("/api/registerLock", function(req, res){
                     }else{
                         res.status(200);
                         res.json({
-                            message: "Lock has been registered",
-                            registered: false
+                            message: "Lock has been paired, please unpair the lock from old gateway to continue !",
+                            paired: false
                         });
                     }
                 }
@@ -510,7 +511,7 @@ app.post("/api/registerLock", function(req, res){
  * Require : token, gateway_id, id
  * Result : <status>
  */
-app.post("/api/deleteLock", function(req, res){
+app.post("/api/unpairLock", function(req, res){
 
     // Credential validation
     modelUser.findOne({token: req.body.token},
@@ -552,13 +553,13 @@ app.post("/api/deleteLock", function(req, res){
 
                     if(gw){
                         res.json({
-                            message: "Lock successfully removed !",
-                            deleted: true
+                            message: "Lock successfully unpaired !",
+                            unpaired: true
                         })
                     }else{
                         res.json({
-                            message: "Lock isn\'t registered, process canceled !",
-                            deleted: false
+                            message: "Lock isn\'t paired or lock serial isn\'t valid !",
+                            unpaired: false
                         })
                     }
                 }
