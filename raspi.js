@@ -30,7 +30,7 @@ socketAsServer.on('connection', function(socket){
 
 function handleSocketAsServer(socket){
 
-    socket.on('client_join', function(room, callback){
+    socket.on('client_join', function(token, room, callback){
         callback(tempCache, humCache, coCache, smokeCache,
             batCache, fuzzyCache);
     });

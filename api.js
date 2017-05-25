@@ -585,44 +585,60 @@ io.on('connection', function (socket) {
  */
 function handleSocket(socket){
 
-    socket.on('client_join', function(room, callback){
-        if(socket.room){
-            socket.leave(socket.room);
-        }
-
-        socket.join(room);
-        socket.room = room;
-        console.log("Client join room ".concat(room));
-
-        // Find gateway which contain id same with room from user
-        modelGateway.findOne({
-                gateway_id: room
-            }, function(err, gw){
+    socket.on('client_join', function(token, room, callback){
+        modelUser.findOne({token: token},
+            function(err, user){
                 if(err){
                     console.log(err);
                     callback(503);
                     return;
                 }
 
-                // Find the last record from sensor with spesific gateway id
-                // If nothing, return 0 as value
-                modelSensor.findOne({gateway_id:room}).sort({_ts:-1}).exec(function(err, sensor){
-                    if(err){
-                        console.log(err);
-                        callback(503);
-                        return;
-                    }
+                if(!user){
+                    console.log(err);
+                    callback(401);
+                    return;
+                }
 
-                    if(!sensor){
-                        callback(200, gw.ip, gw.bssid, 
-                            0, 0, 0, 0,
-                            0, 0);
-                    }else{
-                        callback(200, gw.ip, gw.bssid, 
-                            sensor.temp, sensor.hum, sensor.co, sensor.smoke,
-                            sensor.bat, sensor.fuzzy);
+                if(socket.room){
+                    socket.leave(socket.room);
+                }
+
+                socket.join(room);
+                socket.room = room;
+                console.log("Client join room ".concat(room));
+
+                // Find gateway which contain id same with room from user
+                modelGateway.findOne({
+                        gateway_id: room
+                    }, function(err, gw){
+                        if(err){
+                            console.log(err);
+                            callback(503);
+                            return;
+                        }
+
+                        // Find the last record from sensor with spesific gateway id
+                        // If nothing, return 0 as value
+                        modelSensor.findOne({gateway_id:room}).sort({_ts:-1}).exec(function(err, sensor){
+                            if(err){
+                                console.log(err);
+                                callback(503);
+                                return;
+                            }
+
+                            if(!sensor){
+                                callback(200, gw.ip, gw.bssid, 
+                                    0, 0, 0, 0,
+                                    0, 0);
+                            }else{
+                                callback(200, gw.ip, gw.bssid, 
+                                    sensor.temp, sensor.hum, sensor.co, sensor.smoke,
+                                    sensor.bat, sensor.fuzzy);
+                            }
+                        })
                     }
-                })
+                )
             }
         )
     });
