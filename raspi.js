@@ -35,8 +35,8 @@ function handleSocketAsServer(socket){
             batCache, fuzzyCache);
     });
 
-    socket.on('open_door', function(doorSerial){
-        openDoor(doorSerial);
+    socket.on('open_lock', function(lockSerial){
+        openLock(lockSerial);
     });
 
     socket.on('ring_bell', function(){
@@ -104,8 +104,8 @@ socketAsClient.on("disconnect", function(){
 /**
  * When user open spesific door
  */
-socketAsClient.on("open_door", function(doorSerial){
-    openDoor(doorSerial);
+socketAsClient.on("open_lock", function(lockSerial){
+    openLock(lockSerial);
 });
 
 socketAsClient.on('ring_bell', function(){
@@ -259,10 +259,10 @@ function printDash(){
     console.log("\n===========================================\n");
 }
 
-function openDoor(doorSerial){
+function openLock(lockSerial){
     printDash();
-    console.log("Open door : " +doorSerial);
-    serialport.write("1#" +doorSerial+ ";");
+    console.log("Open lock : " +lockSerial);
+    serialport.write("1#" +lockSerial+ ";");
 }
 
 function ringBell(){

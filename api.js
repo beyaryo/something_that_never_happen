@@ -42,7 +42,7 @@ firebaseAdmin.initializeApp({
 var modelUser = require('./models/user');
 var modelGateway = require('./models/gateway');
 var modelSensor = require('./models/sensor');
-var modelDoor = require('./models/door');
+// var modelDoor = require('./models/door');
 
 /**
  * Init global variable
@@ -421,11 +421,11 @@ app.post("/api/allowUser", function(req, res){
 });
 
 /**
- * Add door to spesific gateway
+ * Add lock to spesific gateway
  * Require : token, gateway_id, id, name
  * Return : <status>
  */
-app.post("/api/registerDoor", function(req, res){
+app.post("/api/registerLock", function(req, res){
 
     // Credential validation
     modelUser.findOne({token: req.body.token},
@@ -442,12 +442,12 @@ app.post("/api/registerDoor", function(req, res){
             }
 
             // Find gateway with spesific id and has been registered
-            // which contain door with spesific door id
+            // which contain lock with spesific lock id
             // If found, return false
             modelGateway.findOne({
                     gateway_id: req.body.gateway_id,
                     registered: true,
-                    door: {
+                    lock: {
                         $elemMatch: {id: req.body.id}
                     }
                 }, function(err, gw){
@@ -459,13 +459,13 @@ app.post("/api/registerDoor", function(req, res){
 
                     if(!gw){
 
-                        // Push new door into gateway
+                        // Push new lock into gateway
                         modelGateway.findOneAndUpdate({
                                 gateway_id: req.body.gateway_id,
                                 registered: true
                             }, {
                                 $push: {
-                                    door: {
+                                    lock: {
                                         id: req.body.id,
                                         name: req.body.name
                                     }
@@ -480,7 +480,7 @@ app.post("/api/registerDoor", function(req, res){
                                 if(gw){
                                     res.status(200);
                                     res.json({
-                                        message: "Door ".concat(req.body.name, " succesfully registered"),
+                                        message: "Lock ".concat(req.body.name, " succesfully registered"),
                                         registered: true
                                     });
                                 }else{
@@ -495,7 +495,7 @@ app.post("/api/registerDoor", function(req, res){
                     }else{
                         res.status(200);
                         res.json({
-                            message: "Door has been registered",
+                            message: "Lock has been registered",
                             registered: false
                         });
                     }
@@ -711,7 +711,7 @@ function handleSocket(socket){
         io.sockets.in(socket.room).emit('sensor_value', data);
     });
 
-    socket.on('open_door', function(doorId, token){
+    socket.on('open_lock', function(lockId, token){
 
         // Credential validation
         modelUser.findOne({
@@ -723,7 +723,7 @@ function handleSocket(socket){
                 }
 
                 if(user){
-                    io.sockets.in(socket.room).emit("open_door", doorId);
+                    io.sockets.in(socket.room).emit("open_lock", lockId);
                 }
             }
         );
