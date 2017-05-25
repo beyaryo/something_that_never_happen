@@ -83,11 +83,9 @@ app.post("/api/login", function(req, res){
     var pass = req.body.pass;                   // get pass from form
     var tokenFirebase = req.body.token_firebase // get firebase token from form
 
-    /**
-     * Find 1 user depend on passed email and password
-     * if couldn't find anything, return 401
-     * if error, return 503
-     */
+    // Find 1 user depend on passed email and password
+    // if couldn't find anything, return 401
+    // if error, return 503
     modelUser.findOne({email: email, password: pass}, function(err, user){
         if(err){
             console.log(err);
@@ -99,9 +97,7 @@ app.post("/api/login", function(req, res){
             user.token = crypto.randomBytes(48).toString('hex');    // generate token
             user.token_firebase = tokenFirebase;
 
-            /**
-             * Save token into database
-             */
+            // Save token into database
             user.save(function(err){
                 if(err){
                     console.log(err);
@@ -109,7 +105,7 @@ app.post("/api/login", function(req, res){
                     return;
                 }
 
-
+                // Get all gateway which user have access into it
                 modelGateway.find({owner: {$elemMatch: {email: req.body.email}}}, 
                     {_id:0}, 
                     function(err, gws){
@@ -137,31 +133,39 @@ app.post("/api/login", function(req, res){
  */
 app.post("/api/register", function(req, res){
 
-    // Find if email has been registered
-    // If email already registered, return 400
+    // Find if email is available
+    // If email already registered, return false
     modelUser.findOne(
         {email: req.body.email},
         function(err, user){
+
             if(!user){
+
+                // Find if phone number is available
+                // If phone number already registered, return false
                 modelUser.findOne({phone: req.body.phone},
                     function(err,user){
-                        if(!user){modelUser.create({
+
+                        if(!user){
+
+                            // Save new document into user collection
+                            modelUser.create({
                                 email: req.body.email,
                                 password: req.body.pass,
                                 name: req.body.name,
                                 phone : req.body.phone,
                                 join_date: (new Date()).getTime()},
-                            function(err, user){
-                                if(err){
-                                    console.log(err);
-                                    res = errorServer(res);
-                                    return;
-                                }else{
-                                    res.status(200);
-                                    res.json({
-                                        message: "Congratulation! Your account registered successfully",
-                                        registered: true
-                                    });
+                                function(err, user){
+                                    if(err){
+                                        console.log(err);
+                                        res = errorServer(res);
+                                        return;
+                                    }else{
+                                        res.status(200);
+                                        res.json({
+                                            message: "Congratulation! Your account registered successfully",
+                                            registered: true
+                                        });
                                     }
                                 }
                             );
@@ -220,9 +224,7 @@ app.post("/api/checkPhone", function(req, res){
  */
 app.post("/api/registerGateway", function(req, res){
 
-    /**
-     * Credential validation
-     */
+    // Credential validation
     modelUser.findOne({token: req.body.token}, function(err, user){
         if(err){
             res = errorServer(res);
@@ -234,10 +236,8 @@ app.post("/api/registerGateway", function(req, res){
             return;
         }
 
-        /**
-         * Find if gateway has been registered
-         * If gateway already registered or gateway_id wrong, return 400
-         */
+        // Find if gateway isn't registered yet
+        // If gateway already registered or gateway_id wrong, return false
         modelGateway.findOneAndUpdate({gateway_id: req.body.gateway_id, registered: false},
             {$set: {
                 gateway_id: req.body.gateway_id,
@@ -253,10 +253,10 @@ app.post("/api/registerGateway", function(req, res){
                 }}
             }, function(err, gw){
                 if(err){
-                    res.status(503);
-                    res.json({message: "Service unavaliable"});
+                    res = errorServer(res);
                     return; 
                 }
+
                 res.status(200);
 
                 if(!gw){
@@ -284,9 +284,7 @@ app.post("/api/registerGateway", function(req, res){
  */
 app.post("/api/gatewayInfo", function(req, res){
 
-    /**
-     * Credential validation
-     */
+    // Credential validation
     modelUser.findOne({token : req.body.token}, function(err, user){
         if(err){
             res = errorServer(res);
@@ -298,16 +296,28 @@ app.post("/api/gatewayInfo", function(req, res){
             return;
         }
 
-        modelGateway.findOne({gateway_id : req.body.gateway_id}, 
-            {_id:0}, 
+        // Find gateway with spesific id
+        // and user who request it has access to monitor the gateway
+        modelGateway.findOne({
+                gateway_id : req.body.gateway_id,
+                owner: {$elemMatch: {email: user.email}}
+            }, {_id:0}, 
             function(err, gw){
                 if(err){
                     res = errorServer(res);
                     return;
                 }
 
-                res.status(200);
-                res.json(gw);
+                if(gw){
+                    res.status(200);
+                    res.json({
+                        allowed: true,
+                        gateway: gw
+                    });
+                }else{
+                    res.status(200);
+                    res.json({allowed: false});
+                }
             }
         );
     });
@@ -320,9 +330,7 @@ app.post("/api/gatewayInfo", function(req, res){
  */
 app.post("/api/allowUser", function(req, res){
 
-    /**
-     * Credential validation
-     */
+    // Credential validation
     modelUser.findOne({token: req.body.token}, function(err, user){
         if(err){
             res = errorServer(res);
@@ -351,6 +359,8 @@ app.post("/api/allowUser", function(req, res){
                 return; 
             }
 
+            // Find gateway with spesific id and already registered
+            // w/o pushed email in owner array
             modelGateway.findOne({
                     gateway_id: req.body.gateway_id,
                     registered: true,
@@ -406,35 +416,6 @@ app.post("/api/allowUser", function(req, res){
                     }
                 }
             )
-
-            // Find gateway with spesific id and already registered
-            // w/o pushed email in owner array
-            // modelGateway.findOneAndUpdate({
-            //         gateway_id: req.body.gateway_id, 
-            //         registered: true, 
-            //         owner: {$ne: req.body.email}
-            //     }, 
-            //     {$push: {owner: req.body.email}},
-            //     function(err, gw){
-            //         if(err){
-            //             res.status(503);
-            //             res.json({message: "Service unavaliable"});
-            //             return; 
-            //         }
-                
-            //         res.status(200);
-
-            //         if(!gw){
-            //             res.json({
-            //                 message: "User already allowed to access this gateway",
-            //                 allowed: false
-            //             });
-            //             return;
-            //         }
-
-                    
-            //     }
-            // );
         }); 
     });
 });
@@ -445,6 +426,8 @@ app.post("/api/allowUser", function(req, res){
  * Return : <status>
  */
 app.post("/api/registerDoor", function(req, res){
+
+    // Credential validation
     modelUser.findOne({token: req.body.token},
         function(err, user){
             if(err){
@@ -458,6 +441,9 @@ app.post("/api/registerDoor", function(req, res){
                 return;
             }
 
+            // Find gateway with spesific id and has been registered
+            // which contain door with spesific door id
+            // If found, return false
             modelGateway.findOne({
                     gateway_id: req.body.gateway_id,
                     registered: true,
@@ -472,6 +458,8 @@ app.post("/api/registerDoor", function(req, res){
                     }
 
                     if(!gw){
+
+                        // Push new door into gateway
                         modelGateway.findOneAndUpdate({
                                 gateway_id: req.body.gateway_id,
                                 registered: true
@@ -606,6 +594,7 @@ function handleSocket(socket){
         socket.room = room;
         console.log("Client join room ".concat(room));
 
+        // Find gateway which contain id same with room from user
         modelGateway.findOne({
                 gateway_id: room
             }, function(err, gw){
@@ -615,6 +604,8 @@ function handleSocket(socket){
                     return;
                 }
 
+                // Find the last record from sensor with spesific gateway id
+                // If nothing, return 0 as value
                 modelSensor.findOne({gateway_id:room}).sort({_ts:-1}).exec(function(err, sensor){
                     if(err){
                         console.log(err);
@@ -647,6 +638,8 @@ function handleSocket(socket){
 
         var val = {ip: ip, bssid: bssid};
 
+        // Update bssid and ip of gateway with spesific id
+        // every time gateway connected to server
         modelGateway.findOneAndUpdate({gateway_id: room},
             {$set: {
                 ip: ip,
@@ -655,6 +648,8 @@ function handleSocket(socket){
                 if(err){
                     console.log(err);
                 }else{
+
+                    // Push notif of new bssid and ip into the owners of gateway via fcm
                     gw.owner.forEach(function(own){
                         modelUser.findOne({email: own.email}, function(err, user){
                             if(err) {
@@ -675,6 +670,7 @@ function handleSocket(socket){
         var now = (new Date()).getTime();
         // console.log(data);
 
+        // Save sensor data from gateway into database
         modelSensor.create({
                 gateway_id : socket.room,
                 temp : data.temp,
@@ -692,16 +688,45 @@ function handleSocket(socket){
                 }
             }
         );
-       
+
+        // Push sensor data to owners of gateway via socket    
         io.sockets.in(socket.room).emit('sensor_value', data);
     });
 
     socket.on('open_door', function(doorId, token){
-        io.sockets.in(socket.room).emit("open_door", doorId);
+
+        // Credential validation
+        modelUser.findOne({
+                token: token
+            },function(err, user){
+                if(err){
+                    console.log(err);
+                    return;
+                }
+
+                if(user){
+                    io.sockets.in(socket.room).emit("open_door", doorId);
+                }
+            }
+        );
     });
 
     socket.on('ring_bell', function(token){
-        io.sockets.in(socket.room).emit("ring_bell"); 
+
+        // Credential validation
+        modelUser.findOne({
+                token: token
+            }, function(err, user){
+                if(err){
+                    console.log(err);
+                    return;
+                }
+
+                if(user){
+                    io.sockets.in(socket.room).emit("ring_bell");           
+                }
+            }
+        ) 
     });
 
     socket.on('disconnect', function(){
@@ -729,9 +754,7 @@ function handleSocket(socket){
  */
 function sendNotification(data, flag, token){
 
-    /**
-     * Initialize data 
-     */
+    // Initialize data 
     var payload = {
         data : {
             data : data,
@@ -743,16 +766,12 @@ function sendNotification(data, flag, token){
         // }
     };
 
-    /**
-     * Initialize option
-     */
+    // Initialize option
     var options = {
         priority : "high"
     };
 
-    /**
-     * Send message to passed token
-     */
+    // Send message to passed token
     firebaseAdmin.messaging().sendToDevice(token, payload, options)
         .then(function(res){
             console.log("Success sent message to ", token);
@@ -768,9 +787,7 @@ function sendNotification(data, flag, token){
  */
 function sendNotification(data, flag, gateway_id, token){
 
-    /**
-     * Initialize data 
-     */
+    // Initialize data 
     var payload = {
         data : {
             data : data,
@@ -779,16 +796,12 @@ function sendNotification(data, flag, gateway_id, token){
         }
     };
 
-    /**
-     * Initialize option
-     */
+    // Initialize option
     var options = {
         priority : "high"
     };
 
-    /**
-     * Send message to passed token
-     */
+    // Send message to passed token
     firebaseAdmin.messaging().sendToDevice(token, payload, options)
         .then(function(res){
             console.log("Success sent message to ", token);
@@ -835,9 +848,7 @@ setInterval(function(){
     console.log(date);
     console.log(now);
 
-    /**
-     * Query for get average sensor value
-     */
+    // Query to getting average sensor value
     var pipelineSensor = [
         {
             $group : {
@@ -853,25 +864,19 @@ setInterval(function(){
     modelSensor.aggregate(pipelineSensor, function(err, vals){
         if(err) throw err;
 
-        /**
-         * Delete all sensor value in sensor collection
-         * for saving database space
-         */
+        // Delete all sensor value in sensor collection
+        // for saving database space
         modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
 
         vals.forEach(function(val){
             
-            /**
-             * Get gateway data depend on sensor.gateway_id
-             */
+            // Get gateway data depend on sensor.gateway_id
             modelGateway.findOne({gateway_id : val._id}, function(err, gw){
                 if(!gw) return;
               
                 gw.owner.forEach(function(own){
 
-                    /**
-                     * Get user firebase token for every gateway's owner
-                     */
+                    // Get user firebase token for every gateway's owner
                     modelUser.findOne({email : own.email}, {_id : 0, token_firebase : 1}, function(err, user){
 
                         if(user.token_firebase){
@@ -879,6 +884,7 @@ setInterval(function(){
                             val.timestamp = now;
                             delete val._id;
 
+                            // Send data into spesific user via fcm
                             sendNotification(JSON.stringify(val), "AVG_DATA", gateway_id, user.token_firebase);
                         }
                     });
