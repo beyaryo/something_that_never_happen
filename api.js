@@ -422,7 +422,7 @@ app.post("/api/allowUser", function(req, res){
 
 /**
  * Add door to spesific gateway
- * Require : token, gateway_id, door_id, door_name
+ * Require : token, gateway_id, id, name
  * Return : <status>
  */
 app.post("/api/registerDoor", function(req, res){
@@ -448,7 +448,7 @@ app.post("/api/registerDoor", function(req, res){
                     gateway_id: req.body.gateway_id,
                     registered: true,
                     door: {
-                        $elemMatch: {id: req.body.door_id}
+                        $elemMatch: {id: req.body.id}
                     }
                 }, function(err, gw){
                     if(err){
@@ -466,8 +466,8 @@ app.post("/api/registerDoor", function(req, res){
                             }, {
                                 $push: {
                                     door: {
-                                        id: req.body.door_id,
-                                        name: req.body.door_name
+                                        id: req.body.id,
+                                        name: req.body.name
                                     }
                                 }
                             }, function(err, gw){
@@ -480,7 +480,7 @@ app.post("/api/registerDoor", function(req, res){
                                 if(gw){
                                     res.status(200);
                                     res.json({
-                                        message: "Door ".concat(req.body.door_name, " succesfully registered"),
+                                        message: "Door ".concat(req.body.name, " succesfully registered"),
                                         registered: true
                                     });
                                 }else{
