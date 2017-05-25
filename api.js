@@ -531,8 +531,8 @@ app.post("/api/deleteLock", function(req, res){
             modelGateway.findOneAndUpdate({
                     gateway_id: req.body.gateway_id, 
                     registered: true,
-                    $elemMatch: {
-                        owner: {email: user.email}
+                    owner: {
+                        $elemMatch: {email: user.email}
                     }
                 },{
                     $pull: {
