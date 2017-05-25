@@ -586,6 +586,8 @@ io.on('connection', function (socket) {
 function handleSocket(socket){
 
     socket.on('client_join', function(token, room, callback){
+
+        // Credential validation
         modelUser.findOne({token: token},
             function(err, user){
                 if(err){
