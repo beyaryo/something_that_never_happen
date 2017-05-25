@@ -506,6 +506,63 @@ app.post("/api/registerLock", function(req, res){
 })
 
 /**
+ * Delete one lock from spesific gateway
+ * Require : token, gateway_id, id
+ * Result : <status>
+ */
+app.post("/api/deleteLock", function(req, res){
+
+    // Credential validation
+    modelUser.findOne({token: req.body.token},
+        function(err, user){
+            if(err){
+                res = errorServer(res);
+                return;
+            }
+
+            if(!user){
+                res = errorCredential(res);
+                return;
+            }
+
+            // Find gateway with spesific id which contain determined lock
+            // If not found, return false
+            modelGateway.findOneAndUpdate({
+                    gateway_id: req.body.gateway_id, 
+                    registered: true,
+                    $elemMatch: {
+                        owner: {email: user.email}
+                    }
+                },{
+                    $pull: {
+                        lock: {id: req.body.id}
+                    }
+                }, function(err, gw){
+                    if(err){
+                        res = errorServer(res);
+                        return;
+                    }
+
+                    res.status(200);
+
+                    if(gw){
+                        res.json({
+                            message: "Lock successfully removed !",
+                            deleted: true
+                        })
+                    }else{
+                        res.json({
+                            message: "Lock isn\'t registered, process canceled !",
+                            deleted: false
+                        })
+                    }
+                }
+            )
+        }
+    )
+});
+
+/**
  * Request user profile
  * Require : token
  * Return : user
