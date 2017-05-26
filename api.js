@@ -401,10 +401,10 @@ app.post("/api/allowUser", function(req, res){
                                     });
 
                                     if(user.token_firebase){
-                                        sendNotifAllowUserToNewOwner(gw.gateway_id, user.token_firebase);
+                                        sendNotifAllowUserToNewOwner(done.gateway_id, user.token_firebase);
                                     }
 
-                                    sendNotifAllowUserToOldOwner(gw, user.email, user.name);
+                                    sendNotifAllowUserToOldOwner(done, user.email, user.name);
                                 }else{
                                     res.json({
                                         message: "Something went wrong, please try again later!",
