@@ -882,7 +882,7 @@ function sendNotifAllowUserToNewOwner(gwId, tokenFirebase){
     )
 }
 
-function sendNotifAllowUserToOldOwner(gwId, newEmail, newName){
+function sendNotifAllowUserToOldOwner(gw, newEmail, newName){
     gw.owner.forEach(function(own){
         modelUser.findOne({email: own.email},
             function(err, user){
@@ -895,7 +895,7 @@ function sendNotifAllowUserToOldOwner(gwId, newEmail, newName){
                     sendNotification(
                         {"email":newEmail, "name":newName},
                         "SOMEONE_GAIN_ACCESS",
-                        gwId, user.token_firebase
+                        gw.gateway_id, user.token_firebase
                     )
                 }
             }
