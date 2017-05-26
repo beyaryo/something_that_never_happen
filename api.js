@@ -399,6 +399,12 @@ app.post("/api/allowUser", function(req, res){
                                         message: user.email.concat(" gain access to gateway"),
                                         allowed: true
                                     });
+
+                                    if(user.token_firebase){
+                                        sendNotifAllowUserToNewOwner(gw.gateway_id, user.token_firebase);
+                                    }
+
+                                    sendNotifAllowUserToOldOwner(gw, user.email, user.name);
                                 }else{
                                     res.json({
                                         message: "Something went wrong, please try again later!",
@@ -855,6 +861,42 @@ function sendNotifPairedLock(gw, lockId, lockName){
                         "PAIR_LOCK", gw.gateway_id,
                         user.token_firebase
                     );
+                }
+            }
+        )
+    });
+}
+
+function sendNotifAllowUserToNewOwner(gwId, tokenFirebase){
+    modelGateway.findOne({gateway_id: gwId}, {_id: 0},
+        function(err, gw){
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            if(gw){
+                sendNotification(JSON.stringify(gw), "GAIN_ACCESS", gwId, tokenFirebase);
+            }
+        }
+    )
+}
+
+function sendNotifAllowUserToOldOwner(gwId, newEmail, newName){
+    gw.owner.forEach(function(own){
+        modelUser.findOne({email: own.email},
+            function(err, user){
+                if(err){
+                    console.log(err);
+                    return;
+                }
+
+                if(user.token_firebase){
+                    sendNotification(
+                        {"email":newEmail, "name":newName},
+                        "SOMEONE_GAIN_ACCESS",
+                        gwId, user.token_firebase
+                    )
                 }
             }
         )
