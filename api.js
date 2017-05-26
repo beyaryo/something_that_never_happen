@@ -893,7 +893,7 @@ function sendNotifAllowUserToOldOwner(gw, newEmail, newName){
 
                 if(user.token_firebase){
                     sendNotification(
-                        {"email":newEmail, "name":newName},
+                        JSON.stringify({email: newEmail, name: newName}),
                         "SOMEONE_GAIN_ACCESS",
                         gw.gateway_id, user.token_firebase
                     )
