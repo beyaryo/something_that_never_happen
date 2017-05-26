@@ -484,6 +484,7 @@ app.post("/api/pairLock", function(req, res){
                                         message: "Lock ".concat(req.body.name, " succesfully paired"),
                                         paired: true
                                     });
+                                    sendNotifPairedLock(gw, req.body.id, req.body.name);
                                 }else{
                                     res.status(200);
                                     res.json({
@@ -828,6 +829,36 @@ function handleSocket(socket){
             }
         });
     })
+}
+
+/**
+ * Send notif when new lock paired
+ */
+function sendNotifPairedLock(gw, lockId, lockName){
+
+    // Get owner(s) of gateway
+    gw.owner.forEach(function(own){
+        modelUser.findOne({email: own.email},
+            {
+                _id: 0,
+                token_firebase: 1
+            },
+            function(err, user){
+                if(err){
+                    console.log(err);
+                    return;
+                }
+
+                if(user.token_firebase){
+                    sendNotification(
+                        {"id":lockId, "name":lockName},
+                        "PAIR_LOCK", gw.gateway_id,
+                        user.token_firebase
+                    );
+                }
+            }
+        )
+    });
 }
 
 /**
