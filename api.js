@@ -366,13 +366,13 @@ app.post("/api/allowUser", function(req, res){
 
         // Check if email is registered
         // if not, return message not registered
-        modelUser.findOne({email: req.body.email}, function(err, user){
+        modelUser.findOne({email: req.body.email}, function(err, newOwner){
             if(err){
                 res = errorServer(res);
                 return;
             }
 
-            if(!user){
+            if(!newOwner){
                 res.status(200);
                 res.json({
                     message: "Email isn\'t registered",
@@ -402,8 +402,8 @@ app.post("/api/allowUser", function(req, res){
                             },{
                                 $push: {
                                     owner: {
-                                        email: user.email,
-                                        name: user.name
+                                        email: newOwner.email,
+                                        name: newOwner.name
                                     }
                                 }
                             },
@@ -419,6 +419,7 @@ app.post("/api/allowUser", function(req, res){
                                 if(done){
                                     res.json({
                                         message: user.email.concat(" gain access to gateway"),
+                                        name: newOwner.name,
                                         allowed: true
                                     });
 
