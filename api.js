@@ -127,6 +127,28 @@ app.post("/api/login", function(req, res){
 });
 
 /**
+ * User logout
+ * Require : token
+ */
+app.post("/api/logout", function(req, res){
+    
+    // Credential validation
+    modelUser.findOneAndUpdate({token: req.body.token},
+        {
+            $unset :{
+                token : 1,
+                token_firebase : 1
+            }
+        },
+        function(err, user){
+            if(err) return;
+
+            if(user) console.log("User ".concat(user.name, " logging out"));
+        }
+    )
+})
+
+/**
  * Register new user
  * Require : email, pass, name, phone
  * Return : <status>
@@ -562,12 +584,14 @@ app.post("/api/unpairLock", function(req, res){
                         res.json({
                             message: "Lock successfully unpaired !",
                             unpaired: true
-                        })
+                        });
+
+                        sendNotifUnpairedLock(gw, req.body.id);
                     }else{
                         res.json({
                             message: "Lock isn\'t paired or lock serial isn\'t valid !",
                             unpaired: false
-                        })
+                        });
                     }
                 }
             )
@@ -857,8 +881,31 @@ function sendNotifPairedLock(gw, lockId, lockName){
 
                 if(user.token_firebase){
                     sendNotification(
-                        {"id":lockId, "name":lockName},
+                        JSON.stringify({id: lockId, name: lockName}),
                         "PAIR_LOCK", gw.gateway_id,
+                        user.token_firebase
+                    );
+                }
+            }
+        )
+    });
+}
+
+function sendNotifUnpairedLock(gw, lockId){
+
+    gw.owner.forEach(function(own){
+        modelUser.findOne({email: own.email},
+            {token_firebase: 1, _id: 0},
+            function(err, user){
+                if(err){
+                    console.log(err);
+                    return;
+                }
+
+                if(user.token_firebase){
+                    sendNotification(
+                        JSON.stringify({id: lockId}),
+                        "UNPAIR_LOCK", gw.gateway_id,
                         user.token_firebase
                     );
                 }
