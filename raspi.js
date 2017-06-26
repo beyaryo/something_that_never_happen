@@ -187,14 +187,10 @@ xbeeAPI.on("frame_object", function(frame) {
      */
     if(frame.type == C.FRAME_TYPE.ZIGBEE_TRANSMIT_REQUEST){  
         try{
-            /**
-             * Get data from frame
-             */
+            // Get data from frame
             var value = (frame.data.toString('utf8')).split("#");
 
-            /**
-             * Split frame to receive sensor value
-             */
+            // Split frame to receive sensor value
             tempCache = getValue(value[4]);
             humCache = getValue(value[5]);
             coCache = getValue(value[6]);

@@ -16,13 +16,17 @@ var rule = [
     1, 2, 2, 2, 2, 2, 2, 2, 2
 ];
 
-tempVal = 112;
-humVal = 64;
-coVal = 16;
-smokeVal = 300;
+tempVal = getRandomNumber(0, 100);
+humVal = getRandomNumber(0, 100);
+coVal = getRandomNumber(0, 100);
+smokeVal = getRandomNumber(0, 300);
+// tempVal = 25;
+// humVal = 67;
+// coVal = 34;
+// smokeVal = 202;
 fuzzyVal = fuzzyfy();
 
-console.log("Temp : " +tempVal);
+console.log("\nTemp : " +tempVal);
 console.log("Hum : " +humVal);
 console.log("CO : " +coVal);
 console.log("Smoke : " +smokeVal);
@@ -145,10 +149,14 @@ function category(){
     console.log("Cat high : " +probHigh+ "\n");
 
     if(probLow > probMed){
-        console.log("Category Low"); 
+        console.log("Category Normal"); 
     }else if(probMed > probHigh){
-        console.log("Category Warning");
+        console.log("Category Alert");
     }else{
-        console.log("Category Dangerous");
+        console.log("Category Fire");
     }
+}
+
+function getRandomNumber(min, max) {
+    return Math.random() * (max - min) + min;
 }

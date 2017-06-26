@@ -630,6 +630,7 @@ app.get("/api/users", function(req, res){
 
         res.json(users);
     });
+    console.log("Test");
 });
 
 /**
@@ -1068,7 +1069,7 @@ setInterval(function(){
 
         // Delete all sensor value in sensor collection
         // for saving database space
-        modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
+        // modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
 
         vals.forEach(function(val){
             
