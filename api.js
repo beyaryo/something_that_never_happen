@@ -1063,7 +1063,7 @@ setInterval(function(){
             }
         }
     ];
-    
+     
     modelSensor.aggregate(pipelineSensor, function(err, vals){
         if(err) throw err;
 
