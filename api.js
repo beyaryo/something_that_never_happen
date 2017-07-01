@@ -639,7 +639,10 @@ app.get("/api/users", function(req, res){
  */
 app.get("/api/sensors", function(req, res){
     modelSensor.count({}, function(err, values){
-        if(err) throw err;
+        if(err){
+            res = errorServer(res);
+            return;
+        };
 
         res.json(values);
     });
