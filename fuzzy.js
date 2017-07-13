@@ -54,6 +54,9 @@ console.log("Smoke high : " +fuzzyVariable[11]);
 console.log("\nFuzzy : " +fuzzyVal);
 category();
 
+var date = new Date(1499120028206 + (7 * 3600 * 1000));
+console.log(date);
+
 function fuzzyfy(){
     fuzzyVariable[0] = curve(tempVal, 0, 0, 20, 30, false);
     fuzzyVariable[1] = curve(tempVal, 20, 40, 40, 60, false);

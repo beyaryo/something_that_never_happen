@@ -42,6 +42,7 @@ firebaseAdmin.initializeApp({
 var modelUser = require('./models/user');
 var modelGateway = require('./models/gateway');
 var modelSensor = require('./models/sensor');
+var modelAlert = require('./models/alert');
 // var modelDoor = require('./models/door');
 
 /**
@@ -628,6 +629,7 @@ app.get("/api/users", function(req, res){
     modelUser.find({}, function(err, users){
         if(err) throw err;
 
+        res.status(200);
         res.json(users);
     });
     console.log("Test");
@@ -638,15 +640,50 @@ app.get("/api/users", function(req, res){
  * Return : <count>
  */
 app.get("/api/sensors", function(req, res){
-    modelSensor.count({}, function(err, values){
+    modelSensor.find({}, function(err, datas){
         if(err){
             res = errorServer(res);
             return;
         };
 
-        res.json(values);
+        var array = new Array();
+        var i = 0;
+        var tsAwal;
+
+        datas.forEach(function(data) {
+            if(i == 0) tsAwal = data["_ts"];
+            // var obj = {
+            //     "index" : i,
+            //     "date" : new Date((data["_ts"] + (7 * 3600 * 1000))),
+            //     "bat" : data["bat"]
+            // }
+            // array.push(obj);
+
+            if(
+                data["_ts"] > (tsAwal + 0 * 3600 * 1000) && 
+                data["_ts"] <= (tsAwal + 1 * 3600 * 1000)) 
+                array.push(data["bat"]);
+            i++;
+        });
+
+        res.status(200);
+        res.json(array);
     });
 });
+
+/**
+ * Test Notif category
+ * Require : gateway_id, category (in int), fuzzy_val 
+ */
+app.post("/api/testNotifCat", function(req, res){
+    var time = (new Date()).getTime();
+    checkAlertTime(req.body.gateway_id, req.body.category, time, req.body.fuzzy_val);
+    
+    res.status(200);
+    res.json({
+        message:"Done"
+    })
+})
 
 /**
  * Admin add gateway
@@ -801,6 +838,9 @@ function handleSocket(socket){
                 if(err){
                     console.log(err);
                 }else{
+                    var category = getFuzzyCategory(data.fuzzy);
+
+                    if(category != 0) checkAlertTime(socket.room, category, now, data.fuzzy);
                     // console.log(res._ts);
                 }
             }
@@ -864,6 +904,95 @@ function handleSocket(socket){
             }
         });
     })
+}
+
+function getFuzzyCategory(fuzzyVal){
+    if(fuzzyVal <= 40) return 0;
+    else if(fuzzyVal <= 63) return 1;
+    else return 2;
+}
+
+function checkAlertTime(gwId, cat, _ts, fuzzyVal){
+    var time;
+
+    if(cat == 1) time = _ts - (3600 * 1000);
+    else time = _ts - (600 * 1000);
+
+    var date = new Date(time);
+    console.log(date);
+
+    modelAlert.find({
+            gateway_id: gwId,
+            type: cat,
+            _ts: {$gte: time}
+        }, function(err, alerts){
+            if(err){
+                console.log(err);
+                return;
+            }
+
+            if(alerts.length <= 0){
+                console.log("next");
+                modelGateway.findOne({gateway_id: gwId},
+                    function(err, gw){
+                        if(err){
+                            console.log(err);
+                            return;
+                        }
+
+                        if(gw){
+                            sendNotifAlert(gw, fuzzyVal, cat, _ts);
+                        }
+                    }
+                )
+            }else{
+                console.log(alerts.length);
+            }
+        })
+}
+
+function sendNotifAlert(gw, fuzzyVal, cat, time){
+    gw.owner.forEach(function(own){
+        modelUser.findOne({email: own.email},
+            {
+                _id: 0,
+                token_firebase: 1
+            },
+            function(err, user){
+                if(err){
+                    console.log(err);
+                    return;
+                }
+
+                if(user.token_firebase){
+                    var catString;
+                    
+                    if(cat == 1) catString = "warning";
+                    else catString = "dangerous";
+
+                    sendNotification(
+                        JSON.stringify({fuzzy: fuzzyVal, category: catString}),
+                        "ALERT_SENSOR", gw.gateway_id,
+                        user.token_firebase
+                    );
+
+                    modelAlert.create({
+                            gateway_id: gw.gateway_id,
+                            user_email: user.email,
+                            type: cat,
+                            _ts: time
+                        },
+                        function(err, alert){
+                            if(err){
+                                console.log(err);
+                                return;
+                            }
+                        }
+                    )
+                }
+            }
+        )
+    });
 }
 
 /**
