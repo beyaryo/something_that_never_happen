@@ -639,7 +639,7 @@ app.get("/api/users", function(req, res){
  * Get sensor values
  * Return : <count>
  */
-app.get("/api/sensors", function(req, res){
+app.post("/api/sensors", function(req, res){
     modelSensor.find({}, function(err, datas){
         if(err){
             res = errorServer(res);
@@ -660,8 +660,8 @@ app.get("/api/sensors", function(req, res){
             // array.push(obj);
 
             if(
-                data["_ts"] > (tsAwal + 0 * 3600 * 1000) && 
-                data["_ts"] <= (tsAwal + 1 * 3600 * 1000)) 
+                data["_ts"] >= (tsAwal + req.body.awal * 3600 * 1000) && 
+                data["_ts"] < (tsAwal + req.body.akhir * 3600 * 1000)) 
                 array.push(data["bat"]);
             i++;
         });
@@ -840,7 +840,7 @@ function handleSocket(socket){
                 }else{
                     var category = getFuzzyCategory(data.fuzzy);
 
-                    if(category != 0) checkAlertTime(socket.room, category, now, data.fuzzy);
+                    // if(category != 0) checkAlertTime(socket.room, category, now, data.fuzzy);
                     // console.log(res._ts);
                 }
             }

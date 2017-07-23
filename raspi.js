@@ -36,7 +36,7 @@ function handleSocketAsServer(socket){
     });
 
     socket.on('open_lock', function(lockSerial){
-        openLock(lockSerial);
+        openLock(lockSerial, 1);
     });
 
     socket.on('ring_bell', function(){
@@ -82,6 +82,7 @@ var buzzer = new Gpio(17, 'out');
  * Define gateway's id
  */
 var socketAsClient = ioAsClient.connect("https://uho.herokuapp.com");
+// var socketAsClient = ioAsClient.connect("http://10.10.10.2:46195");
 var id = "j98";
 
 /**
@@ -105,7 +106,7 @@ socketAsClient.on("disconnect", function(){
  * When user open spesific door
  */
 socketAsClient.on("open_lock", function(lockSerial){
-    openLock(lockSerial);
+    openLock(lockSerial, 1);
 });
 
 socketAsClient.on('ring_bell', function(){
@@ -117,11 +118,16 @@ socketAsClient.on('ring_bell', function(){
  * Each gateway has different room depend on gateway id
  */
 function joinRoom(){
-    var ip = (require( 'os' )).networkInterfaces()['wlan0'][0]['address'];
+    // var ip = (require( 'os' )).networkInterfaces()['wlan0'][0]['address'];
+    // var mac = network[0].mac;
+
+    var ip = "192.168.43.2";
+    var mac = "98ds2ojeb2b";
+
     wifi.getCurrentConnections(function(err, network){
         if(!err){
             console.log("Gateway join room " +id);
-            socketAsClient.emit("gateway_join", id, ip, network[0].mac);
+            socketAsClient.emit("gateway_join", id, ip, mac);
         }
     });
 }
@@ -139,6 +145,7 @@ function joinRoom(){
  */
 var SerialPort = require('serialport');
 var xbee_api = require('xbee-api');
+var envCond = 1, tempEnvCond = 1;
 
 /**
  * Init xbee constant
@@ -208,9 +215,15 @@ xbeeAPI.on("frame_object", function(frame) {
             
             if(parseInt(fuzzyCache) > 40 && parseInt(fuzzyCache) <= 63){
                 buzz(3, 300);
+                tempEnvCond = 1;
             }else if(parseInt(fuzzyCache) > 63){
                 buzz(7, 300);
+                tempEnvCond = -1;
+            }else{
+                tempEnvCond = 1;
             }
+
+            checkEnvCond();
 
             /**
              * Emit sensor value to server
@@ -244,6 +257,19 @@ xbeeAPI.on("frame_object", function(frame) {
 function getValue(val){
     return (val.split(":"))[1];
 }
+
+function checkEnvCond(){
+    if(tempEnvCond != envCond){
+
+        if(tempEnvCond == 1){
+            openLock("", 3);
+        }else{
+            openLock("", 2);
+        }
+
+        envCond = tempEnvCond;
+    }
+}
 /**==========================================================================================================*/
 /**=========================================== End of Coordinator ===========================================*/
 /**==========================================================================================================*/
@@ -255,10 +281,10 @@ function printDash(){
     console.log("\n===========================================\n");
 }
 
-function openLock(lockSerial){
+function openLock(lockSerial, code){
     printDash();
     console.log("Open lock : " +lockSerial);
-    serialport.write("1#" +lockSerial+ ";");
+    serialport.write(code+ "#" +lockSerial+ ";");
 }
 
 function ringBell(){
