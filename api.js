@@ -840,7 +840,7 @@ function handleSocket(socket){
                 }else{
                     var category = getFuzzyCategory(data.fuzzy);
 
-                    // if(category != 0) checkAlertTime(socket.room, category, now, data.fuzzy);
+                    if(category != 0) checkAlertTime(socket.room, category, now, data.fuzzy);
                     // console.log(res._ts);
                 }
             }
@@ -915,8 +915,8 @@ function getFuzzyCategory(fuzzyVal){
 function checkAlertTime(gwId, cat, _ts, fuzzyVal){
     var time;
 
-    if(cat == 1) time = _ts - (3600 * 1000);
-    else time = _ts - (600 * 1000);
+    if(cat == 1) time = _ts - (1800 * 1000);
+    else time = _ts - (120 * 1000);
 
     var date = new Date(time);
     console.log(date);
@@ -1169,9 +1169,9 @@ function errorCredential(res){
  * Timer for request itself to prevent server from sleep
  */
 setInterval(function(){
-    // request(url);
-    // console.log("Requesting self again in 20 minutes");
-}, 1200000);
+    request(url);
+    console.log("Requesting self again in 20 minutes");
+}, 1500000);
 
 /**
  * Timer for send scheduled push notif to client 
@@ -1191,7 +1191,8 @@ setInterval(function(){
                 temp : {$avg : "$temp"},
                 hum : {$avg : "$hum"},
                 co : {$avg : "$co"},
-                smoke : {$avg : "$smoke"}
+                smoke : {$avg : "$smoke"},
+                bat : {$min : "$bat"}
             }
         }
     ];
@@ -1201,7 +1202,7 @@ setInterval(function(){
 
         // Delete all sensor value in sensor collection
         // for saving database space
-        // modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
+        modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
 
         vals.forEach(function(val){
             
