@@ -262,9 +262,9 @@ function checkEnvCond(){
     if(tempEnvCond != envCond){
 
         if(tempEnvCond == 1){
-            openLock("", 3);
+            openLock("0000", 3);
         }else{
-            openLock("", 2);
+            openLock("0000", 2);
         }
 
         envCond = tempEnvCond;

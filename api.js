@@ -1169,8 +1169,8 @@ function errorCredential(res){
  * Timer for request itself to prevent server from sleep
  */
 setInterval(function(){
-    request(url);
-    console.log("Requesting self again in 20 minutes");
+    // request(url);
+    // console.log("Requesting self again in 20 minutes");
 }, 1500000);
 
 /**
@@ -1202,7 +1202,7 @@ setInterval(function(){
 
         // Delete all sensor value in sensor collection
         // for saving database space
-        modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
+        // modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
 
         vals.forEach(function(val){
             
