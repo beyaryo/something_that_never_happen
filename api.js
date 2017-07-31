@@ -419,16 +419,16 @@ app.post("/api/allowUser", function(req, res){
 
                                 if(done){
                                     res.json({
-                                        message: user.email.concat(" gain access to gateway"),
+                                        message: newOwner.email.concat(" gain access to gateway"),
                                         name: newOwner.name,
                                         allowed: true
                                     });
 
-                                    if(user.token_firebase){
-                                        sendNotifAllowUserToNewOwner(done.gateway_id, user.token_firebase);
+                                    if(newOwner.token_firebase){
+                                        sendNotifAllowUserToNewOwner(done.gateway_id, newOwner.token_firebase);
                                     }
 
-                                    sendNotifAllowUserToOldOwner(done, user.email, user.name);
+                                    sendNotifAllowUserToOldOwner(done, newOwner.email, newOwner.name);
                                 }else{
                                     res.json({
                                         message: "Something went wrong, please try again later!",
