@@ -522,15 +522,15 @@ app.post("/api/removeUser", function(req, res){
 
                                 if(done){
                                     res.json({
-                                        message: removed.email.concat(" has removed !"),
+                                        message: removedOwner.email.concat(" has removed !"),
                                         removed: true
                                     });
 
-                                    if(removed.token_firebase){
-                                        // sendNotifAllowUserToNewOwner(done.gateway_id, removed.token_firebase);
+                                    if(removedOwner.token_firebase){
+                                        // sendNotifAllowUserToNewOwner(done.gateway_id, removedOwner.token_firebase);
                                     }
 
-                                    // sendNotifAllowUserToOldOwner(done, removed.email);
+                                    // sendNotifAllowUserToOldOwner(done, removedOwner.email);
                                 }else{
                                     res.json({
                                         message: "Something went wrong, please try again later!",
