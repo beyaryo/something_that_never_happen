@@ -451,6 +451,108 @@ app.post("/api/allowUser", function(req, res){
 });
 
 /**
+ * Remover user from monitoring spesific gateway
+ * Require : token, email, gateway_id
+ * Return : <status>
+ */
+app.post("/api/removeUser", function(req, res){
+
+    // Credential validation
+    modelUser.findOne({token: req.body.token}, function(err, user){
+        if(err){
+            res = errorServer(res);
+            return;
+        }
+
+        if(!user){
+            res = errorCredential(res);
+            return;
+        }
+
+        // Check if email is registered
+        // if not, return message not registered
+        modelUser.findOne({email: req.body.email}, function(err, removedOwner){
+            if(err){
+                res = errorServer(res);
+                return;
+            }
+
+            if(!removedOwner){
+                res.status(200);
+                res.json({
+                    message: "Email isn\'t registered",
+                    allowed: false
+                });
+                return; 
+            }
+
+            // Find gateway with spesific id and already registered
+            // w/o pushed email in owner array
+            modelGateway.findOne({
+                    gateway_id: req.body.gateway_id,
+                    registered: true,
+                    owner: {$elemMatch: {email: req.body.email}}
+                },
+                function(err, gw){
+                    if(err){
+                        console.log(err);
+                        res = errorServer(res);
+                        return;
+                    }
+
+                    if(gw){
+                        modelGateway.findOneAndUpdate({
+                                gateway_id: req.body.gateway_id,
+                                registered: true
+                            },{
+                                $pull: {
+                                    owner: {
+                                        email: removedOwner.email
+                                    }
+                                }
+                            },
+                            function(err, done){
+                                if(err){
+                                    console.log(err);
+                                    res = errorServer(res);
+                                    return;
+                                }
+
+                                res.status(200);
+
+                                if(done){
+                                    res.json({
+                                        message: removed.email.concat(" has removed !"),
+                                        removed: true
+                                    });
+
+                                    if(removed.token_firebase){
+                                        // sendNotifAllowUserToNewOwner(done.gateway_id, removed.token_firebase);
+                                    }
+
+                                    // sendNotifAllowUserToOldOwner(done, removed.email);
+                                }else{
+                                    res.json({
+                                        message: "Something went wrong, please try again later!",
+                                        removed: false
+                                    });
+                                }
+                            }
+                        )
+                    }else{
+                        res.status(200);
+                        res.json({
+                            message: "User don't have key to access this gateway",
+                            removed: false
+                        })
+                    }
+                }
+            )
+        }); 
+    });
+});
+
+/**
  * Add lock to spesific gateway
  * Require : token, gateway_id, id, name
  * Return : <status>
