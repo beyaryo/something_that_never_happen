@@ -923,8 +923,9 @@ function handleSocket(socket){
     });
 
     socket.on('gateway_data', function(data){
-        console.log(new Date(data._ts));
+        console.log("new data sensor received with seq number ".concat(data.seq));
         console.log(new Date());
+        console.log("============================================================");
 
         // Save sensor data from gateway into database
         modelSensor.create({
