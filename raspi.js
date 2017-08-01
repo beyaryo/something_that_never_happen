@@ -118,11 +118,9 @@ socketAsClient.on('ring_bell', function(){
  * Each gateway has different room depend on gateway id
  */
 function joinRoom(){
-    // var ip = (require( 'os' )).networkInterfaces()['wlan0'][0]['address'];
-    // var mac = network[0].mac;
-
-    var ip = "192.168.43.2";
-    var mac = "98ds2ojeb2b";
+    var network = (require('os')).networkInterfaces()['wlan0'][0];
+    var ip = network['address'];
+    var mac = network['mac'];
 
     wifi.getCurrentConnections(function(err, network){
         if(!err){
@@ -196,6 +194,7 @@ xbeeAPI.on("frame_object", function(frame) {
         try{
             // Get data from frame
             var value = (frame.data.toString('utf8')).split("#");
+            var date = new Date().getTime();
 
             // Split frame to receive sensor value
             tempCache = getValue(value[4]);
@@ -206,6 +205,9 @@ xbeeAPI.on("frame_object", function(frame) {
             fuzzyCache = getValue(value[9]);
             
             console.log("Data received from waspmote.");
+            console.log("Time : " +date);
+            console.log("Node id : " +value[2]);
+            console.log("Frame seq : " +value[3]);
             console.log("Temp : " +tempCache);
             console.log("Hum : " +humCache);
             console.log("CO : " +coCache);
@@ -229,12 +231,15 @@ xbeeAPI.on("frame_object", function(frame) {
              * Emit sensor value to server
              */
             socketAsClient.emit("gateway_data", {
+                node: value[2],
+                seq: value[3],
                 temp: tempCache,
                 hum: humCache,
                 co: coCache,
                 smoke: smokeCache,
                 bat: batCache,
-                fuzzy: fuzzyCache
+                fuzzy: fuzzyCache,
+                _ts: (date + 1000 * 3600 * 14)
             });
 
             /**

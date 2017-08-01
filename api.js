@@ -923,8 +923,8 @@ function handleSocket(socket){
     });
 
     socket.on('gateway_data', function(data){
-        var now = (new Date()).getTime();
-        // console.log(data);
+        console.log(new Date(data._ts));
+        console.log(new Date());
 
         // Save sensor data from gateway into database
         modelSensor.create({
@@ -935,7 +935,7 @@ function handleSocket(socket){
                 smoke : data.smoke,
                 bat : data.bat,
                 fuzzy : data.fuzzy,
-                _ts : now
+                _ts : data._ts
             }, function(err, res){
                 if(err){
                     console.log(err);
