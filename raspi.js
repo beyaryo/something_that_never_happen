@@ -195,6 +195,7 @@ xbeeAPI.on("frame_object", function(frame) {
             // Get data from frame
             var value = (frame.data.toString('utf8')).split("#");
             var date = new Date().getTime();
+            printDate(new Date());
 
             // Split frame to receive sensor value
             tempCache = getValue(value[4]);
@@ -205,7 +206,6 @@ xbeeAPI.on("frame_object", function(frame) {
             fuzzyCache = getValue(value[9]);
             
             console.log("Data received from waspmote.");
-            console.log("Time : " +date);
             console.log("Node id : " +value[2]);
             console.log("Frame seq : " +value[3]);
             console.log("Temp : " +tempCache);
@@ -284,6 +284,18 @@ function checkEnvCond(){
 /**==========================================================================================================*/
 function printDash(){
     console.log("\n===========================================\n");
+}
+
+function printDate(date){
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+    var hour = date.getHours();
+    var min = date.getMinutes();
+    var sec = date.getSeconds();
+    var mils = date.getMilliseconds();
+
+    console.log(day+ "/" +month+ "/" +year+ " " +hour+ ":" +min+ ":" +sec+ "." +mils);
 }
 
 function openLock(lockSerial, code){
