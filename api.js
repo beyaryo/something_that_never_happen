@@ -1289,6 +1289,14 @@ setInterval(function(){
     // Query to getting average sensor value
     var pipelineSensor = [
         {
+            $match : {
+                _ts : {
+                    $lt : now,
+                    $gte : (now - 1000 * 60 * 10)
+                }
+            }
+        },
+        {
             $group : {
                 _id : "$gateway_id",
                 temp : {$avg : "$temp"},
@@ -1331,5 +1339,5 @@ setInterval(function(){
             })
         });
     });
-}, 3600000);
+}, (1000 * 60));
 //3600000
