@@ -231,8 +231,7 @@ xbeeAPI.on("frame_object", function(frame) {
              * Emit sensor value to server
              */
             socketAsClient.emit("gateway_data", {
-                node: value[2],
-                seq: value[3],
+                _id: id,
                 temp: tempCache,
                 hum: humCache,
                 co: coCache,

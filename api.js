@@ -144,7 +144,12 @@ app.post("/api/logout", function(req, res){
         function(err, user){
             if(err) return;
 
-            if(user) console.log("User ".concat(user.name, " logging out"));
+            if(user) {
+                res.status(200);
+                res.json({name:user.name, message: "Successfully logout !"});
+            }else{
+                res = errorServer(res);
+            }
         }
     )
 })
@@ -1283,7 +1288,9 @@ setInterval(function(){
  */
 setInterval(function(){
     var date = new Date();
-    var now = date.getTime();
+    var now = date.getTime() - (1000 * 60 * 60 * 7);
+    var max = 1501543925090;
+    var min = 1501411876035
     console.log(date);
     console.log(now);
 
@@ -1292,8 +1299,8 @@ setInterval(function(){
         {
             $match : {
                 _ts : {
-                    $lt : now,
-                    $gte : (now - 1000 * 60 * 10)
+                    $lte : max,
+                    $gte : min
                 }
             }
         },
@@ -1311,6 +1318,8 @@ setInterval(function(){
      
     modelSensor.aggregate(pipelineSensor, function(err, vals){
         if(err) throw err;
+        console.log("find Them");
+        console.log(vals)
 
         // Delete all sensor value in sensor collection
         // for saving database space
