@@ -43,6 +43,7 @@ var modelUser = require('./models/user');
 var modelGateway = require('./models/gateway');
 var modelSensor = require('./models/sensor');
 var modelAlert = require('./models/alert');
+var modelAggr = require('./models/aggr');
 // var modelDoor = require('./models/door');
 
 /**
@@ -1288,19 +1289,15 @@ setInterval(function(){
  */
 setInterval(function(){
     var date = new Date();
-    var now = date.getTime() - (1000 * 60 * 60 * 7);
-    var max = 1501543925090;
-    var min = 1501411876035
-    console.log(date);
-    console.log(now);
+    var now = date.getTime();
 
     // Query to getting average sensor value
     var pipelineSensor = [
         {
             $match : {
                 _ts : {
-                    $lte : max,
-                    $gte : min
+                    $lte : now,
+                    $gte : now - (1000 * 60 * 60 * 7)
                 }
             }
         },
@@ -1311,6 +1308,7 @@ setInterval(function(){
                 hum : {$avg : "$hum"},
                 co : {$avg : "$co"},
                 smoke : {$avg : "$smoke"},
+                fuzzy: {$avg : "$fuzzy"},
                 bat : {$min : "$bat"}
             }
         }
@@ -1319,11 +1317,22 @@ setInterval(function(){
     modelSensor.aggregate(pipelineSensor, function(err, vals){
         if(err) throw err;
         console.log("find Them");
-        console.log(vals)
+        console.log(vals);
 
         // Delete all sensor value in sensor collection
         // for saving database space
-        // modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
+        modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
+        modelAggr.create({
+                gateway_id: vals._id,
+                temp: vals.temp,
+                hum: vals.hum,
+                co: vals.co,
+                smoke: vals.smoke,
+                bat: vals.bat,
+                fuzzy: vals.fuzzy,
+                _ts: now - (1000 * 60 * 60 * 7)
+            }, function(err, aggrs){}
+        );
 
         vals.forEach(function(val){
             
@@ -1349,5 +1358,5 @@ setInterval(function(){
             })
         });
     });
-}, (1000 * 60));
+}, (1000 * 60 * 10));
 //3600000

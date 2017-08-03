@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-var aggregateSchema = new mongoose.Schema({
+var aggrSchema = new mongoose.Schema({
     gateway_id : String,
     temp : Number,
     hum : Number,
@@ -11,4 +11,4 @@ var aggregateSchema = new mongoose.Schema({
     _ts : Number
 }, {collection: 'aggr'});
 
-module.exports = mongoose.model('aggr', aggregateSchema);
+module.exports = mongoose.model('aggr', aggrSchema);
