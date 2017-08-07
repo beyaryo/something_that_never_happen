@@ -94,7 +94,7 @@ app.post("/api/login", function(req, res){
             res = errorServer(res);
             return;
         }
-
+         
         if(user){
             user.token = crypto.randomBytes(48).toString('hex');    // generate token
             user.token_firebase = tokenFirebase;
