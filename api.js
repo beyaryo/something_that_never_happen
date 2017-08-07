@@ -1304,7 +1304,7 @@ setInterval(function(){
             $match : {
                 _ts : {
                     $lte : now,
-                    $gte : now - (1000 * 60 * 30 * 1)
+                    $gte : now - (1000 * 60 * 60 * 1)
                 }
             }
         },
@@ -1324,6 +1324,10 @@ setInterval(function(){
     modelSensor.aggregate(pipelineSensor, function(err, vals){
         if(err) throw err;
         console.log("Sending data with cloud messaging with val size ".concat(vals.length));
+
+        if(vals.length == 0){
+            return;
+        }
 
         // Delete all sensor value in sensor collection
         // for saving database space
@@ -1366,5 +1370,5 @@ setInterval(function(){
             })
         });
     });
-}, (1000 * 60 * 1));
+}, (1000 * 60 * 60 * 1));
 //3600000
