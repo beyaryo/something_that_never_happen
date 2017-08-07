@@ -1262,7 +1262,7 @@ function sendNotification(data, flag, gateway_id, token){
         }
     );
 }
-
+ 
 /**
  * Error accessing database handler
  */
