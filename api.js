@@ -1295,7 +1295,7 @@ setInterval(function(){
 setInterval(function(){
     var date = new Date();
     var now = date.getTime() + (1000 * 60 * 60 * 7);
-    console.log("Gonna send data at ".concat(now));
+    // console.log("Gonna send data at ".concat(now));
 
     // Query to getting average sensor value
     var pipelineSensor = [
@@ -1322,7 +1322,7 @@ setInterval(function(){
      
     modelSensor.aggregate(pipelineSensor, function(err, vals){
         if(err) throw err;
-        console.log("Sending data with cloud messaging with val size ".concat(vals.length));
+        // console.log("Sending data with cloud messaging with val size ".concat(vals.length));
 
         if(vals.length == 0){
             return;
