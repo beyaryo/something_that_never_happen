@@ -1284,8 +1284,8 @@ function errorCredential(res){
  * Timer for request itself to prevent server from sleep
  */
 setInterval(function(){
-    request(url);
-    console.log("Requesting self again in 20 minutes");
+    // request(url);
+    // console.log("Requesting self again in 25 minutes");
 }, (1000 * 60 * 25 * 1));
 
 /**
@@ -1370,5 +1370,5 @@ setInterval(function(){
             })
         });
     });
-}, (1000 * 60 * 1 * 1));
+}, (1000 * 60 * 60 * 1));
 //3600000
