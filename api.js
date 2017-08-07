@@ -1323,7 +1323,7 @@ setInterval(function(){
      
     modelSensor.aggregate(pipelineSensor, function(err, vals){
         if(err) throw err;
-        console.log("Sending data with cloud messaging with val size ".concat(vals.size()));
+        console.log("Sending data with cloud messaging with val size ".concat(vals.length));
 
         // Delete all sensor value in sensor collection
         // for saving database space
