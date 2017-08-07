@@ -1296,7 +1296,7 @@ setInterval(function(){
 setInterval(function(){
     var date = new Date();
     var now = date.getTime();
-    console.log("Gonna send data at ".concat(date));
+    console.log("Gonna send data at ".concat(now));
 
     // Query to getting average sensor value
     var pipelineSensor = [
