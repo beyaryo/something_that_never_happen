@@ -118,15 +118,17 @@ socketAsClient.on('ring_bell', function(){
  * Each gateway has different room depend on gateway id
  */
 function joinRoom(){
-    var network = (require('os')).networkInterfaces()['wlan0'][0];
-    var ip = network['address'];
-    var mac = network['mac'];
+    var wpa_cli = require('wireless-tools/wpa_cli');
+    wpa_cli.status('wlan0', function(err, status) {
+        var ip = status["ip"];
+        var bssid = status["bssid"];
 
-    wifi.getCurrentConnections(function(err, network){
-        if(!err){
-            console.log("Gateway join room " +id);
-            socketAsClient.emit("gateway_join", id, ip, mac);
-        }
+        wifi.getCurrentConnections(function(err, network){
+            if(!err){
+                console.log("Gateway join room " +id);
+                socketAsClient.emit("gateway_join", id, ip, bssid);
+            }
+        });
     });
 }
 /**==========================================================================================================*/
@@ -245,12 +247,14 @@ xbeeAPI.on("frame_object", function(frame) {
              * Emit sensor value to connected client in same network
              */
             socketAsServer.emit("sensor_value", {
+                _id: id,
                 temp: tempCache,
                 hum: humCache,
                 co: coCache,
                 smoke: smokeCache,
                 bat: batCache,
-                fuzzy: fuzzyCache
+                fuzzy: fuzzyCache,
+                _ts: (date + 1000 * 3600 * 14)
             });
         }catch(err){
             console.log("frame_object error : " +err);

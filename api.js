@@ -1296,7 +1296,7 @@ setInterval(function(){
 setInterval(function(){
     var date = new Date();
     var now = date.getTime();
-    console.log(date);
+    console.log("Gonna send data at ".concat(date));
 
     // Query to getting average sensor value
     var pipelineSensor = [
@@ -1323,6 +1323,7 @@ setInterval(function(){
      
     modelSensor.aggregate(pipelineSensor, function(err, vals){
         if(err) throw err;
+        console.log("Seding data with cloud messaging");
 
         // Delete all sensor value in sensor collection
         // for saving database space
