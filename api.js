@@ -1249,7 +1249,7 @@ function sendNotification(data, flag, gateway_id, token){
     // Send message to passed token
     firebaseAdmin.messaging().sendToDevice(token, payload, options)
         .then(function(res){
-            console.log("Success sent message to ", token);
+            console.log("Success sent message %s to %s", flag, token);
         })
         .catch(function(err){
             console.log("Error sending message to ", err);
