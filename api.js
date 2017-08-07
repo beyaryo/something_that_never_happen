@@ -873,12 +873,17 @@ function handleSocket(socket){
                                 return;
                             }
 
+                            var gwIpSetted = false;
+                            if(isset(gw.ip)){
+                                gwIpSetted = true;
+                            }
+
                             if(!sensor){
-                                callback(200, gw.ip, gw.bssid, 
+                                callback(200, (gwIpSetted ? gw.ip : ""), (gwIpSetted ? gw.bssid : ""), 
                                     0, 0, 0, 0,
                                     0, 0);
                             }else{
-                                callback(200, gw.ip, gw.bssid, 
+                                callback(200, (gwIpSetted ? gw.ip : ""), (gwIpSetted ? gw.bssid : ""),
                                     sensor.temp, sensor.hum, sensor.co, sensor.smoke,
                                     sensor.bat, sensor.fuzzy);
                             }
