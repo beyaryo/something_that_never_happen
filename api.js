@@ -1357,7 +1357,7 @@ setInterval(function(){
                     modelUser.findOne({email : own.email}, {_id : 0, token_firebase : 1}, function(err, user){
 
                         if(user.token_firebase){
-                            var gateway_id = val._id;
+                            var gateway_id = "".concat(val._id);
                             val.timestamp = now;
                             delete val._id;
 
