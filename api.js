@@ -143,14 +143,14 @@ app.post("/api/logout", function(req, res){
             }
         },
         function(err, user){
-            if(err) return;
+            // if(err) return;
 
-            if(user) {
-                res.status(200);
-                res.json({name:user.name, message: "Successfully logout !"});
-            }else{
-                res = errorServer(res);
-            }
+            // if(user) {
+            //     res.status(200);
+            //     res.json({name:user.name, message: "Successfully logout !"});
+            // }else{
+            //     res = errorServer(res);
+            // }
         }
     )
 })
@@ -1290,6 +1290,7 @@ setInterval(function(){
 setInterval(function(){
     var date = new Date();
     var now = date.getTime();
+    console.log(date);
 
     // Query to getting average sensor value
     var pipelineSensor = [
@@ -1322,6 +1323,8 @@ setInterval(function(){
         // Delete all sensor value in sensor collection
         // for saving database space
         modelSensor.remove({_ts : {$lt : now}}, function(err, sens){});
+
+        // Save aggregation value for recording data
         modelAggr.create({
                 gateway_id: vals._id,
                 temp: vals.temp,
