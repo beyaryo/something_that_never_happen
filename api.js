@@ -948,7 +948,7 @@ function handleSocket(socket){
                 smoke : data.smoke,
                 bat : data.bat,
                 fuzzy : data.fuzzy,
-                _ts : data._ts
+                _ts : now
             }, function(err, res){
                 if(err){
                     console.log(err);

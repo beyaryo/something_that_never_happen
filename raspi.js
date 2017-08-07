@@ -156,15 +156,15 @@ var C = xbee_api.constants;
  * Gateway using xbee with api mode 2
  */
 var xbeeAPI = new xbee_api.XBeeAPI({
-  api_mode: 2
+api_mode: 2
 });
 
 /**
  * Init Xbee dongle, baudrate and parser  
  */
 var serialport = new SerialPort("/dev/ttyUSB0", {
-  baudrate: 115200,
-  parser: xbeeAPI.rawParser()
+baudrate: 115200,
+parser: xbeeAPI.rawParser()
 });
 
 /**
@@ -240,7 +240,7 @@ xbeeAPI.on("frame_object", function(frame) {
                 smoke: smokeCache,
                 bat: batCache,
                 fuzzy: fuzzyCache,
-                _ts: (date + 1000 * 3600 * 14)
+                _ts: (date + 1000 * 3600 * 7)
             });
 
             /**
@@ -254,7 +254,7 @@ xbeeAPI.on("frame_object", function(frame) {
                 smoke: smokeCache,
                 bat: batCache,
                 fuzzy: fuzzyCache,
-                _ts: (date + 1000 * 3600 * 14)
+                _ts: (date + 1000 * 3600 * 7)
             });
         }catch(err){
             console.log("frame_object error : " +err);
@@ -298,6 +298,7 @@ function printDate(date){
     var sec = date.getSeconds();
     var mils = date.getMilliseconds();
 
+    console.log(date.getTime() + 1000 * 3600 * 7);
     console.log(day+ "/" +month+ "/" +year+ " " +hour+ ":" +min+ ":" +sec+ "." +mils);
 }
 

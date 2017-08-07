@@ -19,7 +19,9 @@ var rule = [
     1, 1, 2, 1, 2, 2, 2, 2, 2,
     1, 2, 2, 2, 2, 2, 2, 2, 2
 ];
+var date = new Date(1502121934741);
 
+console.log(date);
 tempVal = getRandomNumber(0, 100);
 phVal = getRandomNumber(1, 14);
 desoVal = getRandomNumber(0, 100);
