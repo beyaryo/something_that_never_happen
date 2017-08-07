@@ -874,7 +874,7 @@ function handleSocket(socket){
                             }
 
                             var gwIpSetted = false;
-                            if(typeof gw.ip !== 'undefined'){
+                            if(gw.ip != null){
                                 gwIpSetted = true;
                             }
 
