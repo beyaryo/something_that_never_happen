@@ -941,7 +941,7 @@ function handleSocket(socket){
 
         // Save sensor data from gateway into database
         modelSensor.create({
-                gateway_id : socket.room,
+                gateway_id : data._id,
                 temp : data.temp,
                 hum : data.hum,
                 co : data.co,
@@ -956,7 +956,6 @@ function handleSocket(socket){
                     var category = getFuzzyCategory(data.fuzzy);
 
                     if(category != 0) checkAlertTime(socket.room, category, now, data.fuzzy);
-                    // console.log(res._ts);
                 }
             }
         );
@@ -1370,5 +1369,5 @@ setInterval(function(){
             })
         });
     });
-}, (1000 * 60 * 60 * 1));
+}, (1000 * 60 * 5 * 1));
 //3600000
