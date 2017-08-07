@@ -1249,7 +1249,8 @@ function sendNotification(data, flag, gateway_id, token){
     // Send message to passed token
     firebaseAdmin.messaging().sendToDevice(token, payload, options)
         .then(function(res){
-            console.log("Success sent message %s to %s", flag, token);
+            var success = "Success sent message ".concat(flag, " to ", token);
+            console.log(success);
         })
         .catch(function(err){
             console.log("Error sending message to ", err);
@@ -1279,8 +1280,8 @@ function errorCredential(res){
  * Timer for request itself to prevent server from sleep
  */
 setInterval(function(){
-    // request(url);
-    // console.log("Requesting self again in 20 minutes");
+    request(url);
+    console.log("Requesting self again in 20 minutes");
 }, 1500000);
 
 /**
