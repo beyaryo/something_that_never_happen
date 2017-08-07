@@ -1352,12 +1352,13 @@ setInterval(function(){
                 if(!gw) return;
               
                 gw.owner.forEach(function(own){
+                    console.log("Sending data with cloud messaging of gateway ".concat(gw.gateway_id));
 
                     // Get user firebase token for every gateway's owner
                     modelUser.findOne({email : own.email}, {_id : 0, token_firebase : 1}, function(err, user){
 
                         if(user.token_firebase){
-                            var gateway_id = "".concat(val._id);
+                            var gateway_id = "".concat(gw.gateway_id);
                             val.timestamp = now;
                             delete val._id;
 
