@@ -1350,9 +1350,10 @@ setInterval(function(){
             // Get gateway data depend on sensor.gateway_id
             modelGateway.findOne({gateway_id : val._id}, function(err, gw){
                 if(!gw) return;
+                delete val._id;
               
                 gw.owner.forEach(function(own){
-                    console.log("Sending data with cloud messaging of gateway ".concat(gw.gateway_id));
+                    // console.log("Sending data with cloud messaging of gateway ".concat(gw.gateway_id));
 
                     // Get user firebase token for every gateway's owner
                     modelUser.findOne({email : own.email}, {_id : 0, token_firebase : 1}, function(err, user){
@@ -1360,7 +1361,6 @@ setInterval(function(){
                         if(user.token_firebase){
                             var gateway_id = "".concat(gw.gateway_id);
                             val.timestamp = now;
-                            delete val._id;
 
                             // Send data into spesific user via fcm
                             sendNotification(JSON.stringify(val), "AVG_DATA", gateway_id, user.token_firebase);
