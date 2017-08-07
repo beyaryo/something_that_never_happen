@@ -1286,7 +1286,7 @@ function errorCredential(res){
 setInterval(function(){
     request(url);
     console.log("Requesting self again in 20 minutes");
-}, 1500000);
+}, (1000 * 60 * 25 * 1));
 
 /**
  * Timer for send scheduled push notif to client 
@@ -1369,5 +1369,5 @@ setInterval(function(){
             })
         });
     });
-}, (1000 * 60 * 5 * 1));
+}, (1000 * 60 * 1 * 1));
 //3600000
