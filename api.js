@@ -948,7 +948,7 @@ function handleSocket(socket){
                 smoke : data.smoke,
                 bat : data.bat,
                 fuzzy : data.fuzzy,
-                _ts : now
+                _ts : data._ts
             }, function(err, res){
                 if(err){
                     console.log(err);
@@ -1304,7 +1304,7 @@ setInterval(function(){
             $match : {
                 _ts : {
                     $lte : now,
-                    $gte : now - (1000 * 60 * 60 * 7)
+                    $gte : now + (1000 * 60 * 60 * 7)
                 }
             }
         },
@@ -1338,7 +1338,7 @@ setInterval(function(){
                 smoke: vals.smoke,
                 bat: vals.bat,
                 fuzzy: vals.fuzzy,
-                _ts: now - (1000 * 60 * 60 * 7)
+                _ts: now + (1000 * 60 * 60 * 7)
             }, function(err, aggrs){}
         );
 

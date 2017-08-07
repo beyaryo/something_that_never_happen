@@ -19,7 +19,7 @@ var rule = [
     1, 1, 2, 1, 2, 2, 2, 2, 2,
     1, 2, 2, 2, 2, 2, 2, 2, 2
 ];
-var date = new Date(1502121934741);
+var date = new Date(1502096798853);
 
 console.log(date);
 tempVal = getRandomNumber(0, 100);
