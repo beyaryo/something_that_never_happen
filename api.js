@@ -1317,8 +1317,6 @@ setInterval(function(){
      
     modelSensor.aggregate(pipelineSensor, function(err, vals){
         if(err) throw err;
-        console.log("find Them");
-        console.log(vals);
 
         // Delete all sensor value in sensor collection
         // for saving database space
@@ -1361,5 +1359,5 @@ setInterval(function(){
             })
         });
     });
-}, (1000 * 60 * 10));
+}, (1000 * 60 * 1));
 //3600000
