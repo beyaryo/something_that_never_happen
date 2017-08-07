@@ -1295,7 +1295,7 @@ setInterval(function(){
  */
 setInterval(function(){
     var date = new Date();
-    var now = date.getTime();
+    var now = date.getTime() + (1000 * 60 * 60 * 7);
     console.log("Gonna send data at ".concat(now));
 
     // Query to getting average sensor value
@@ -1304,7 +1304,7 @@ setInterval(function(){
             $match : {
                 _ts : {
                     $lte : now,
-                    $gte : now + (1000 * 60 * 60 * 7)
+                    $gte : now - (1000 * 60 * 30 * 1)
                 }
             }
         },
@@ -1338,7 +1338,7 @@ setInterval(function(){
                 smoke: vals.smoke,
                 bat: vals.bat,
                 fuzzy: vals.fuzzy,
-                _ts: now + (1000 * 60 * 60 * 7)
+                _ts: now
             }, function(err, aggrs){}
         );
 
