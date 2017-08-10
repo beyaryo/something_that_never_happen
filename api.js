@@ -1272,8 +1272,8 @@ function postToTwitter(data){
                         }, function(err, gw){
                             if(err){console.log(err); return;}
                             var location = "Terjadi kebakaran di ".concat(gw.address, " dengan koordinat ", gw.lat, ",", gw.lng);
-                            var condition = ". Kondisi rumah( Suhu:".concat(data.temp, "C | Kelembaban:", data.hum, "%RH | CO:", data.co, "ppm | ",data.smoke, "ppm )");
-                            var message = location.concat(condition);
+                            // var condition = ". Kondisi rumah( Suhu:".concat(data.temp, "C | Kelembaban:", data.hum, "%RH | CO:", data.co, "ppm | ",data.smoke, "ppm )");
+                            var message = location;
                             console.log(message);
 
                             twitter.post('statuses/update', {status: message},  function(error, tweet, response) {
