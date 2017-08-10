@@ -43,7 +43,7 @@ firebaseAdmin.initializeApp({
 });
 
 /**
- * Import model user, gateway
+ * Import model
  */
 var modelUser = require('./models/user');
 var modelGateway = require('./models/gateway');
@@ -148,16 +148,7 @@ app.post("/api/logout", function(req, res){
                 token_firebase : 1
             }
         },
-        function(err, user){
-            // if(err) return;
-
-            // if(user) {
-            //     res.status(200);
-            //     res.json({name:user.name, message: "Successfully logout !"});
-            // }else{
-            //     res = errorServer(res);
-            // }
-        }
+        function(err, user){}
     )
 })
 
@@ -858,7 +849,7 @@ function handleSocket(socket){
 
                 socket.join(room);
                 socket.room = room;
-                console.log("Client join room ".concat(room));
+                // console.log("Client join room ".concat(room));
 
                 // Find gateway which contain id same with room from user
                 modelGateway.findOne({
@@ -907,7 +898,7 @@ function handleSocket(socket){
 
         socket.join(room);
         socket.room = room;
-        console.log("Gateway join room ".concat(room));
+        // console.log("Gateway join room ".concat(room));
 
         var val = {ip: ip, bssid: bssid};
 
@@ -1010,7 +1001,7 @@ function handleSocket(socket){
 
     socket.on('disconnect', function(){
         if(socket.room){
-            console.log("A device leave room ".concat(socket.room));
+            // console.log("A device leave room ".concat(socket.room));
             socket.leave(socket.room);
         }
     });
@@ -1053,8 +1044,7 @@ function checkAlertTime(gwId, cat, _ts, fuzzyVal){
                 return;
             }
 
-            if(alerts.length <= 0){
-                console.log("next");
+            if(!alerts){
                 modelGateway.findOne({gateway_id: gwId},
                     function(err, gw){
                         if(err){
@@ -1067,8 +1057,6 @@ function checkAlertTime(gwId, cat, _ts, fuzzyVal){
                         }
                     }
                 )
-            }else{
-                console.log(alerts.length);
             }
         })
 }
