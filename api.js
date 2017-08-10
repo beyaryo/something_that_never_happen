@@ -1276,6 +1276,7 @@ function postToTwitter(data){
     modelTwitter.find({ gateway_id: data._id, _ts: { $gt: aDayAgo, $lt: data._ts}, 
             function (err, twits){
                 if(err){console.log(err); return;}
+                console.log("Twits size : ".concat(twits.length));
 
                 if(!twits){
                     modelGateway.findOne({
@@ -1285,6 +1286,7 @@ function postToTwitter(data){
                             var location = "Terjadi kebakaran di ".concat(gw.address, " dengan koordinat ", gw.lat, ",", gw.lng);
                             var condition = ". Kondisi rumah( Suhu:".concat(data.temp, "C | Kelembaban:", data.hum, "%RH | CO:", data.co, "ppm | ",data.smoke, "ppm )");
                             var message = location.concat(condition);
+                            console.log(message);
 
                             twitter.post('statuses/update', {status: 'Test twitter npm!'},  function(error, tweet, response) {
                                 if(error) {console.log(error); return;}
