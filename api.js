@@ -50,7 +50,7 @@ var modelGateway = require('./models/gateway');
 var modelSensor = require('./models/sensor');
 var modelAlert = require('./models/alert');
 var modelAggr = require('./models/aggr');
-var modelTwitter = require('./models/twit.js');
+var modelTwitter = require('./models/twit');
 
 /**
  * Init global variable
