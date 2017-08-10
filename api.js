@@ -148,7 +148,7 @@ app.post("/api/logout", function(req, res){
                 token_firebase : 1
             }
         },
-        function(err, user){}
+        function(err, user){if(err)return;}
     )
 })
 
@@ -872,21 +872,15 @@ function handleSocket(socket){
                                 return;
                             }
 
-                            // var gwIpSetted = false;
-                            // if(gw.ip == ""){
-                            //     gwIpSetted = true;
-                            // }
-
-
-                            // if(!sensor){
-                            //     callback(200, gw.ip, gw.bssid, 
-                            //         0, 0, 0, 0,
-                            //         0, 0);
-                            // }else{
-                            //     callback(200, gw.ip, gw.bssid,
-                            //         sensor.temp, sensor.hum, sensor.co, sensor.smoke,
-                            //         sensor.bat, sensor.fuzzy);
-                            // }
+                            if(!sensor){
+                                callback(200, gw.ip, gw.bssid, 
+                                    0, 0, 0, 0,
+                                    0, 0);
+                            }else{
+                                callback(200, gw.ip, gw.bssid,
+                                    sensor.temp, sensor.hum, sensor.co, sensor.smoke,
+                                    sensor.bat, sensor.fuzzy);
+                            }
                         })
                     }
                 )
