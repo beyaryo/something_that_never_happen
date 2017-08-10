@@ -877,6 +877,7 @@ function handleSocket(socket){
                             //     gwIpSetted = true;
                             // }
 
+                            
                             if(!sensor){
                                 callback(200, gw.ip, gw.bssid, 
                                     0, 0, 0, 0,
