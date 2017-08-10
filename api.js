@@ -1,4 +1,9 @@
 /**
+ * Import config file
+ */
+var config = require('./config/config');
+
+/**
  * Init Express for http framework
  * Init morgan for unit testing
  * Init socket.io for websocketing
@@ -16,12 +21,13 @@ var request = require('request');
 var mongoose = require('mongoose');
 var crypto = require('crypto');
 var firebaseAdmin = require('firebase-admin');
+var twitter = new (require('twitter'))({
+    consumer_key: config.twitterConsumerKey,
+    consumer_secret: config.twitterConsumerSecret,
+    access_token_key: config.twitterAccessTokenKey,
+    access_token_secret: config.twitterAccessTokenSecret
+});
 var app = express();
-
-/**
- * Import config file
- */
-var config = require('./config/config');
 
 /**
  * Open json file from config for firebase
@@ -44,7 +50,7 @@ var modelGateway = require('./models/gateway');
 var modelSensor = require('./models/sensor');
 var modelAlert = require('./models/alert');
 var modelAggr = require('./models/aggr');
-// var modelDoor = require('./models/door');
+var modelTwitter = require('./models/twit.js');
 
 /**
  * Init global variable
@@ -956,6 +962,8 @@ function handleSocket(socket){
                     var category = getFuzzyCategory(data.fuzzy);
 
                     if(category != 0) checkAlertTime(socket.room, category, now, data.fuzzy);
+
+                    if(category == 2) postToTwitter(data);
                 }
             }
         );
@@ -1258,6 +1266,45 @@ function sendNotification(data, flag, gateway_id, token){
         })
         .catch(function(err){
             console.log("Error sending message to ", err);
+        }
+    );
+}
+
+function postToTwitter(data){
+    var aDayAgo = data._ts - (1000 * 60 * 60 * 24);
+
+    modelTwitter.find({ gateway_id: data._id, _ts: { $gt: aDayAgo, $lt: data._ts}, 
+            function (err, twits){
+                if(err){console.log(err); return;}
+
+                if(!twits){
+                    modelGateway.findOne({
+                            gateway_id: data._id
+                        }, function(err, gw){
+                            if(err){console.log(err); return;}
+                            var location = "Terjadi kebakaran di ".concat(gw.address, " dengan koordinat ", gw.lat, ",", gw.lng);
+                            var condition = ". Kondisi rumah( Suhu:".concat(data.temp, "C | Kelembaban:", data.hum, "%RH | CO:", data.co, "ppm | ",data.smoke, "ppm )");
+                            var message = location.concat(condition);
+
+                            twitter.post('statuses/update', {status: 'Test twitter npm!'},  function(error, tweet, response) {
+                                if(error) {console.log(error); return;}
+                                
+                                modelTwitter.create({
+                                        gateway_id : data._id,
+                                        temp : data.temp,
+                                        hum : data.hum,
+                                        co : data.co,
+                                        smoke : data.smoke,
+                                        bat : data.bat,
+                                        fuzzy : data.fuzzy,
+                                        _ts : data._ts
+                                    }, function(err, tws){if(err) return; }
+                                )
+                            });
+                        }
+                    );
+                }
+            }
         }
     );
 }
