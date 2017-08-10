@@ -1267,7 +1267,7 @@ function postToTwitter(data){
             if(err){console.log(err); return;}
             console.log("Size of twitter collection : ".concat(tws.length));
 
-            if(!tws){
+            if(tws.length <= 0){
                 console.log("Time to search gateway ".concat(data._id, " details"));
             }
         }
