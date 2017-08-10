@@ -798,7 +798,9 @@ app.post("/api/testNotifCat", function(req, res){
 app.post("/admin/addGateway", function(req, res){
     modelGateway.create({
             gateway_id: req.body.gateway_id,
-            registered: false
+            registered: false,
+            ip: "",
+            bssid: ""
         }, function(err){
             if(err){
                 console.log(err);
@@ -870,17 +872,17 @@ function handleSocket(socket){
                                 return;
                             }
 
-                            var gwIpSetted = false;
-                            if(gw.ip != null){
-                                gwIpSetted = true;
-                            }
+                            // var gwIpSetted = false;
+                            // if(gw.ip == ""){
+                            //     gwIpSetted = true;
+                            // }
 
                             if(!sensor){
-                                callback(200, (gwIpSetted ? gw.ip : ""), (gwIpSetted ? gw.bssid : ""), 
+                                callback(200, gw.ip, gw.bssid, 
                                     0, 0, 0, 0,
                                     0, 0);
                             }else{
-                                callback(200, (gwIpSetted ? gw.ip : ""), (gwIpSetted ? gw.bssid : ""),
+                                callback(200, gw.ip, gw.bssid,
                                     sensor.temp, sensor.hum, sensor.co, sensor.smoke,
                                     sensor.bat, sensor.fuzzy);
                             }
