@@ -1276,7 +1276,7 @@ function postToTwitter(data){
                             var message = location.concat(condition);
                             console.log(message);
 
-                            twitter.post('statuses/update', {status: 'Test twitter npm!'},  function(error, tweet, response) {
+                            twitter.post('statuses/update', {status: message},  function(error, tweet, response) {
                                 if(error) {console.log(error); return;}
                                 
                                 modelTwitter.create({
@@ -1289,7 +1289,7 @@ function postToTwitter(data){
                                         fuzzy : data.fuzzy,
                                         _ts : data._ts
                                     }, function(err, tws){if(err) return; }
-                                )
+                                );
                             });
                         }
                     );
