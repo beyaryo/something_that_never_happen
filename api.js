@@ -1264,7 +1264,12 @@ function postToTwitter(data){
 
     modelTwitter.find({gateway_id:data._id, _ts: {$gt: aDayAgo, $lt:data._ts}}, 
         function(err, tws){
+            if(err){console.log(err); return;}
             console.log("Size of twitter collection : ".concat(tws.length));
+
+            if(!tws){
+                console.log("Time to search gateway ".concat(data._id, " details"));
+            }
         }
     );
 
