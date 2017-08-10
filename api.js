@@ -1272,6 +1272,7 @@ function sendNotification(data, flag, gateway_id, token){
 
 function postToTwitter(data){
     var aDayAgo = data._ts - (1000 * 60 * 60 * 24);
+    console.log("Gonna post to twitter");
 
     modelTwitter.find({ gateway_id: data._id, _ts: { $gt: aDayAgo, $lt: data._ts}, 
             function (err, twits){
