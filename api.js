@@ -1260,45 +1260,51 @@ function sendNotification(data, flag, gateway_id, token){
 
 function postToTwitter(data){
     var aDayAgo = data._ts - (1000 * 60 * 60 * 24);
-    console.log("Search if already post to twitter in a day (".concat(data._ts, " - ", aDayAgo, ")"));
+    console.log("Search if ".concat( data._id, "already post to twitter in a day (", data._ts, " - ", aDayAgo, ")"));
 
-    modelTwitter.find({ gateway_id: data._id, _ts: { $gt: aDayAgo, $lt: data._ts}, 
-            function (err, twits){
-                console.log("Search for data with id gateway : ".concat(data._id));
-                if(err){console.log(err); return;}
-                console.log("Twits size : ".concat(twits.length));
-
-                if(!twits){
-                    modelGateway.findOne({
-                            gateway_id: data._id
-                        }, function(err, gw){
-                            if(err){console.log(err); return;}
-                            var location = "Terjadi kebakaran di ".concat(gw.address, " dengan koordinat ", gw.lat, ",", gw.lng);
-                            var condition = ". Kondisi rumah( Suhu:".concat(data.temp, "C | Kelembaban:", data.hum, "%RH | CO:", data.co, "ppm | ",data.smoke, "ppm )");
-                            var message = location.concat(condition);
-                            console.log(message);
-
-                            twitter.post('statuses/update', {status: 'Test twitter npm!'},  function(error, tweet, response) {
-                                if(error) {console.log(error); return;}
-                                
-                                modelTwitter.create({
-                                        gateway_id : data._id,
-                                        temp : data.temp,
-                                        hum : data.hum,
-                                        co : data.co,
-                                        smoke : data.smoke,
-                                        bat : data.bat,
-                                        fuzzy : data.fuzzy,
-                                        _ts : data._ts
-                                    }, function(err, tws){if(err) return; }
-                                )
-                            });
-                        }
-                    );
-                }
-            }
+    modelTwitter.find({}, 
+        function(err, tws){
+            console.log("Size of twitter collection : ".concat(tws.length));
         }
     );
+
+    // modelTwitter.find({ gateway_id: data._id, _ts: { $gt: aDayAgo, $lt: data._ts}, 
+    //         function (err, twits){
+    //             console.log("Search for data with id gateway : ".concat(data._id));
+    //             if(err){console.log(err); return;}
+    //             console.log("Twits size : ".concat(twits.length));
+
+    //             if(!twits){
+    //                 modelGateway.findOne({
+    //                         gateway_id: data._id
+    //                     }, function(err, gw){
+    //                         if(err){console.log(err); return;}
+    //                         var location = "Terjadi kebakaran di ".concat(gw.address, " dengan koordinat ", gw.lat, ",", gw.lng);
+    //                         var condition = ". Kondisi rumah( Suhu:".concat(data.temp, "C | Kelembaban:", data.hum, "%RH | CO:", data.co, "ppm | ",data.smoke, "ppm )");
+    //                         var message = location.concat(condition);
+    //                         console.log(message);
+
+    //                         twitter.post('statuses/update', {status: 'Test twitter npm!'},  function(error, tweet, response) {
+    //                             if(error) {console.log(error); return;}
+                                
+    //                             modelTwitter.create({
+    //                                     gateway_id : data._id,
+    //                                     temp : data.temp,
+    //                                     hum : data.hum,
+    //                                     co : data.co,
+    //                                     smoke : data.smoke,
+    //                                     bat : data.bat,
+    //                                     fuzzy : data.fuzzy,
+    //                                     _ts : data._ts
+    //                                 }, function(err, tws){if(err) return; }
+    //                             )
+    //                         });
+    //                     }
+    //                 );
+    //             }
+    //         }
+    //     }
+    // );
 }
  
 /**
