@@ -1260,9 +1260,9 @@ function sendNotification(data, flag, gateway_id, token){
 
 function postToTwitter(data){
     var aDayAgo = data._ts - (1000 * 60 * 60 * 24);
-    console.log("Search if ".concat( data._id, "already post to twitter in a day (", data._ts, " - ", aDayAgo, ")"));
+    console.log("Search if ".concat( data._id, " already post to twitter in a day (", data._ts, " - ", aDayAgo, ")"));
 
-    modelTwitter.find({}, 
+    modelTwitter.find({gateway_id:data._id, _ts: {$gt: aDayAgo, $lt:data._ts}}, 
         function(err, tws){
             console.log("Size of twitter collection : ".concat(tws.length));
         }
