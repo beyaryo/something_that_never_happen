@@ -1032,7 +1032,7 @@ function checkAlertTime(gwId, cat, _ts, fuzzyVal){
     else time = _ts - (120 * 1000);
 
     var date = new Date(time);
-    console.log(date);
+    // console.log(date);
 
     modelAlert.find({
             gateway_id: gwId,
@@ -1260,10 +1260,11 @@ function sendNotification(data, flag, gateway_id, token){
 
 function postToTwitter(data){
     var aDayAgo = data._ts - (1000 * 60 * 60 * 24);
-    console.log("Gonna post to twitter");
+    console.log("Search if already post to twitter in a day (".concat(data._ts, " - ", aDayAgo, ")"));
 
     modelTwitter.find({ gateway_id: data._id, _ts: { $gt: aDayAgo, $lt: data._ts}, 
             function (err, twits){
+                console.log("Search for data with id gateway : ".concat(data._id));
                 if(err){console.log(err); return;}
                 console.log("Twits size : ".concat(twits.length));
 
