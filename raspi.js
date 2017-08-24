@@ -239,7 +239,7 @@ xbeeAPI.on("frame_object", function(frame) {
                 co: coCache,
                 smoke: smokeCache,
                 bat: batCache,
-                fuzzy: parseInt(fuzzyCache)+55,
+                fuzzy: parseInt(fuzzyCache),
                 _ts: (date + 1000 * 3600 * 7)
             });
 
